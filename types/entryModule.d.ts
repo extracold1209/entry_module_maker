@@ -12,7 +12,7 @@ declare interface EntryModuleCompressionInfo {
     title: string,
     description: string,
     version: number,
-    blockFile: string,
+    blockFilePath: string,
     hardwareModulePath: string,
     hardwareModuleName: string,
 }

@@ -80,7 +80,7 @@
             const hardwareModuleName = $('#hardwareModuleName').val();
 
             const $blockFile = $('#blockFile');
-            const blockFile = $blockFile[0].files[0] && $blockFile[0].files[0].path;
+            const blockFilePath = $blockFile[0].files[0] && $blockFile[0].files[0].path;
 
             if (/^\d+(?:\.\d+)?$/.test(version) === false) {
                 alert('version must be number');
@@ -100,8 +100,14 @@
             }
 
             compressModule({
-                moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFile
-            });
+                moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath
+            })
+                .then((result) => {
+                    console.log(result);
+                })
+                .catch((e) => {
+                    console.error(e);
+                })
         });
     });
 </script>
