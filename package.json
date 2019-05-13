@@ -2,13 +2,22 @@
   "name": "entry-module",
   "version": "1.0.0",
   "description": "entry module generator",
-  "main": "src/main.js",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "electron ."
+    "build": "tsc",
+    "watch": "tsc -w",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "start": "npm run build && electron .",
+    "debug": "electron . --inspect"
   },
   "devDependencies": {
+    "@types/electron": "^1.6.10",
+    "@types/node": "^12.0.0",
+    "@types/rollup": "^0.54.0",
     "electron": "^5.0.1",
     "eslint": "^5.16.0",
-    "rollup": "^1.11.3"
+    "rollup": "^1.11.3",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
   }
 }

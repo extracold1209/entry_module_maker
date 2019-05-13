@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <title></title>
+</head>
+<body>
+<div class="ui container">
+    <div class="ui vertically divided grid">
+        <div class="row"></div>
+        <div class="row">
+            <div class="twelve column segment">
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        moduleName
+                    </div>
+                    <input id="moduleName" type="text" placeholder="arduino">
+                </div>
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        title
+                    </div>
+                    <input id="title" type="text" placeholder="...">
+                </div>
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        description
+                    </div>
+                    <input id="description" type="text" placeholder="...">
+                </div>
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        version
+                    </div>
+                    <input id="version" type="text" placeholder="1.00">
+                </div>
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        blockFile
+                    </div>
+                    <input id="blockFile" type="file">
+                </div>
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        hardwareModulePath
+                    </div>
+                    <input id="hardwareModulePath" type="file" directory webkitdirectory>
+                </div>
+                <div class="ui fluid labeled input">
+                    <div class="ui label">
+                        hardwareModuleName
+                    </div>
+                    <input id="hardwareModuleName" type="text" placeholder="arduino">
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="twelve column">
+                <button id="submit" class="ui secondary button">
+                    Okay
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+<script>
+    $(document).ready(() => {
+        const submit = $('#submit');
+
+        submit.on('click', (e) => {
+            const moduleName = $('#moduleName').val();
+            const title = $('#title').val();
+            const version = $('#version').val();
+            const description = $('#description').val();
+
+            const $hardwareModulePath = $('#hardwareModulePath');
+            const hardwareModulePath = $hardwareModulePath[0].files[0] && $hardwareModulePath[0].files[0].path;
+            const hardwareModuleName = $('#hardwareModuleName').val();
+
+            const $blockFile = $('#blockFile');
+            const blockFile = $blockFile[0].files[0] && $blockFile[0].files[0].path;
+
+            if (/^\d+(?:\.\d+)?$/.test(version) === false) {
+                alert('version must be number');
+                return false;
+            }
+            if (moduleName === '') {
+                alert('moduleName is required');
+                return false;
+            }
+            if (title === '') {
+                alert('title is required');
+                return false;
+            }
+            if (hardwareModuleName === '') {
+                alert('hardwareModuleName is required');
+                return false;
+            }
+
+            compressModule({
+                moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFile
+            });
+        });
+    });
+</script>
+</body>
+</html>
