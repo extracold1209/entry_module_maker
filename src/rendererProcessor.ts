@@ -4,9 +4,12 @@ process.once('loaded', () => {
     global.compressModule = (a: EntryModuleCompressionInfo) => {
         return new Promise((resolve, reject) => {
             ipcRenderer.send('compress', a);
-            ipcRenderer.on('compress', (event: Event, data: string) => {
-                console.log(event, data);
-                resolve(data);
+            ipcRenderer.on('compress', (event: Electron.Event, error?: any) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve();
+                }
             });
         });
     };

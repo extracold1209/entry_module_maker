@@ -2,12 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import {rollup} from 'rollup';
+import moduleReplacerPlugin from './entryModuleReplacer';
 
 const getBuildFilePath = () => path.join(global.__rootDir, 'build');
 const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
 
 export default async (compressionInfo: EntryModuleCompressionInfo) => {
-    console.log('a', compressionInfo);
     const { blockFilePath } = compressionInfo;
 
     await clearBuildDirectory();
@@ -33,6 +33,7 @@ async function rollupBlockFile(blockFilePath: string) {
     const blockFileName = path.basename(blockFilePath);
     const bundle = await rollup({
         input: blockFilePath,
+        plugins: [moduleReplacerPlugin()]
     });
     await bundle.write({
         format: 'iife',
@@ -52,7 +53,6 @@ function makeMetadata(compressionInfo: EntryModuleCompressionInfo): EntryModuleM
 }
 
 function writeMetadataFile(metadata: EntryModuleMetadata) {
-    // fs.writeFile()
     return new Promise((resolve, reject) => {
         fs.writeFile(path.join(getUnpackedBuildPath(), 'metadata.json'), JSON.stringify(metadata), (err) => {
             if (err) {
