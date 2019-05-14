@@ -24,9 +24,7 @@ export default class {
     static compress(files: IArchiverCompression[], destFilePath: PathLike) {
         return new Promise((resolve, reject) => {
             const fsWriteStream = fs.createWriteStream(destFilePath);
-            const archiver = Archiver('zip', {
-                zlib: {level: 9}
-            });
+            const archiver = Archiver('tar');
 
             fsWriteStream.on('error', reject);
             archiver.on('error', reject);

@@ -14,6 +14,7 @@ export default async (compressionInfo: EntryModuleCompressionInfo) => {
     await rollupBlockFile(blockFilePath);
     await writeMetadataFile(makeMetadata(compressionInfo));
     await compressHardwareModuleFile(compressionInfo);
+    await compressModule(compressionInfo);
 
     return 'hello';
 }
@@ -66,4 +67,15 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
     });
 
     await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
+}
+
+async function compressModule(compressionInfo: EntryModuleCompressionInfo) {
+    const { moduleName } = compressionInfo;
+    const moduleFilePath = path.join(getBuildFilePath(), `${moduleName}.zip`);
+    const archiverInformation = {
+        type: 'directory',
+        filePath: getUnpackedBuildPath(),
+    };
+
+    await FileUtils.compress([archiverInformation], moduleFilePath);
 }
