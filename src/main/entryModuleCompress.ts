@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import rimraf from 'rimraf';
 import {rollup} from 'rollup';
 import moduleReplacerPlugin from './entryModuleReplacer';
+import FileUtils from './utils/fileUtils';
 
 const getBuildFilePath = () => path.join(global.__rootDir, 'build');
 const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
@@ -10,23 +10,11 @@ const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
 export default async (compressionInfo: EntryModuleCompressionInfo) => {
     const { blockFilePath } = compressionInfo;
 
-    await clearBuildDirectory();
+    await FileUtils.clearBuildDirectory(getBuildFilePath());
     await rollupBlockFile(blockFilePath);
     await writeMetadataFile(makeMetadata(compressionInfo));
 
     return 'hello';
-}
-
-function clearBuildDirectory() {
-    return new Promise((resolve, reject) => {
-        rimraf(getBuildFilePath(), (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
 }
 
 async function rollupBlockFile(blockFilePath: string) {
