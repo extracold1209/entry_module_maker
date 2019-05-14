@@ -12,7 +12,7 @@ import {Plugin} from 'rollup';
 export default function EntryModuleReplacer(): Plugin {
     // module.exports = new Module(); -> new Module()
     const searchRegex = /(module\.exports[ ]*=[ ]*)(.*);/;
-    const targetValue = 'Entry.moduleManager.registerHardware($2);';
+    const targetValue = 'Entry.moduleManager.registerHardwareModule($2);';
     return {
         name: 'EntryModuleReplacer', // this name will show up in warnings and errors
         transform(contents) {
