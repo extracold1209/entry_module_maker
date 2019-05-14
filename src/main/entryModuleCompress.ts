@@ -8,11 +8,12 @@ const getBuildFilePath = () => path.join(global.__rootDir, 'build');
 const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
 
 export default async (compressionInfo: EntryModuleCompressionInfo) => {
-    const { blockFilePath } = compressionInfo;
+    const {blockFilePath} = compressionInfo;
 
     await FileUtils.clearBuildDirectory(getBuildFilePath());
     await rollupBlockFile(blockFilePath);
     await writeMetadataFile(makeMetadata(compressionInfo));
+    await compressHardwareModuleFile(compressionInfo);
 
     return 'hello';
 }
@@ -48,6 +49,21 @@ function writeMetadataFile(metadata: EntryModuleMetadata) {
             } else {
                 resolve();
             }
-        })
+        });
     });
+}
+
+async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressionInfo) {
+    const {hardwareModulePath, hardwareModuleName} = compressionInfo;
+    const hardwareRequiredExtensionList = ['.png', '.js', '.json'];
+
+    const zipFilePath = path.join(getUnpackedBuildPath(), `${hardwareModuleName}.zip`);
+    const hardwareModuleFilePathList = hardwareRequiredExtensionList.map((extension) => {
+        return {
+            type: 'file',
+            filePath: path.join(hardwareModulePath, `${hardwareModuleName}${extension}`)
+        };
+    });
+
+    await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
 }
