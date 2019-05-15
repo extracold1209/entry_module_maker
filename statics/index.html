@@ -15,43 +15,43 @@
                     <div class="ui label">
                         moduleName
                     </div>
-                    <input id="moduleName" type="text" placeholder="arduino">
+                    <input id="moduleName" class="savable" type="text" placeholder="arduino">
                 </div>
                 <div class="ui fluid labeled input">
                     <div class="ui label">
                         title
                     </div>
-                    <input id="title" type="text" placeholder="...">
+                    <input id="title" class="savable" type="text" placeholder="...">
                 </div>
                 <div class="ui fluid labeled input">
                     <div class="ui label">
                         description
                     </div>
-                    <input id="description" type="text" placeholder="...">
+                    <input id="description" class="savable" type="text" placeholder="...">
                 </div>
                 <div class="ui fluid labeled input">
                     <div class="ui label">
                         version
                     </div>
-                    <input id="version" type="text" placeholder="1.00">
+                    <input id="version" class="savable" type="text" placeholder="1.00">
                 </div>
-                <div class="ui fluid labeled input">
-                    <div class="ui label">
-                        blockFile
-                    </div>
-                    <input id="blockFile" type="file">
+                <div class="ui fluid labeled icon input">
+                    <div class="ui label">blockFile</div>
+                    <input id="blockFile" class="savable" type="text" placeholder="/entryjs/src/playground/blocks/hardware/block_arduino.js">
+                    <i id="blockFileIcon" class="inverted circular search link icon"></i>
+                    <input id="blockFileSelector" style="display: none;" type="file" hidden>
                 </div>
-                <div class="ui fluid labeled input">
-                    <div class="ui label">
-                        hardwareModulePath
-                    </div>
-                    <input id="hardwareModulePath" type="file" directory webkitdirectory>
+                <div class="ui fluid labeled icon input">
+                    <div class="ui label">hardwareModulePath</div>
+                    <input id="hardwareModulePath" class="savable" type="text" placeholder="/entry-hw/app/modules">
+                    <i id="hardwareModulePathIcon" class="inverted circular search link icon"></i>
+                    <input id="hardwareModulePathSelector" style="display: none;" type="file" directory webkitdirectory>
                 </div>
                 <div class="ui fluid labeled input">
                     <div class="ui label">
                         hardwareModuleName
                     </div>
-                    <input id="hardwareModuleName" type="text" placeholder="arduino">
+                    <input id="hardwareModuleName" class="savable" type="text" placeholder="arduino">
                 </div>
             </div>
         </div>
@@ -66,50 +66,91 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
 <script>
+    let localStorageData = {};
     $(document).ready(() => {
-        const submit = $('#submit');
-
-        submit.on('click', (e) => {
-            const moduleName = $('#moduleName').val();
-            const title = $('#title').val();
-            const version = $('#version').val();
-            const description = $('#description').val();
-
-            const $hardwareModulePath = $('#hardwareModulePath');
-            const hardwareModulePath = $hardwareModulePath[0].files[0] && $hardwareModulePath[0].files[0].path;
-            const hardwareModuleName = $('#hardwareModuleName').val();
-
-            const $blockFile = $('#blockFile');
-            const blockFilePath = $blockFile[0].files[0] && $blockFile[0].files[0].path;
-
-            if (/^\d+(?:\.\d+)?$/.test(version) === false) {
-                alert('version must be number');
-                return false;
-            }
-            if (moduleName === '') {
-                alert('moduleName is required');
-                return false;
-            }
-            if (title === '') {
-                alert('title is required');
-                return false;
-            }
-            if (hardwareModuleName === '') {
-                alert('hardwareModuleName is required');
-                return false;
-            }
-
-            compressModule({
-                moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath
-            })
-                .then((result) => {
-                    console.log(result);
-                })
-                .catch((e) => {
-                    console.error(e);
-                })
+        // blockFile file path search logic
+        $('#blockFileIcon').on('click', () => {
+            $('#blockFileSelector').click();
         });
+        $('#blockFileSelector').on('change', (e) => {
+            const $blockFile = $('#blockFile');
+            $blockFile.val(e.currentTarget.files[0].path);
+            $blockFile.change();
+        });
+
+        // hardwareModulePath directory path search logic
+        $('#hardwareModulePathIcon').on('click', () => {
+            $('#hardwareModulePathSelector').click();
+        });
+        $('#hardwareModulePathSelector').on('change', (e) => {
+            const $hardwareModulePath = $('#hardwareModulePath');
+            $hardwareModulePath.val(e.currentTarget.files[0].path);
+            $hardwareModulePath.change()
+        });
+
+        $('.savable').on('keydown change', dataSaveFunction);
+        $('#submit').on('click', onSubmitData);
+        restoreDataFromLocalStorage();
     });
+
+    function restoreDataFromLocalStorage() {
+        if (localStorage) {
+            localStorageData = JSON.parse(localStorage.getItem('savedForm') || '{}');
+
+            Object
+                .entries(localStorageData)
+                .forEach(([key, value]) => {
+                $(`#${key}`).val(value);
+            });
+        }
+    }
+
+    function dataSaveFunction() {
+        const $this = $(this);
+        const value = $this.val();
+        const id = $this[0].id;
+        if (localStorage) {
+            localStorageData[id] = value;
+            localStorage.setItem('savedForm', JSON.stringify(localStorageData));
+        }
+    }
+
+    function onSubmitData() {
+        const moduleName = $('#moduleName').val();
+        const title = $('#title').val();
+        const version = $('#version').val();
+        const description = $('#description').val();
+        const hardwareModulePath = $('#hardwareModulePath').val();
+        const hardwareModuleName = $('#hardwareModuleName').val();
+        const blockFilePath = $('#blockFile').val();
+
+        if (/^\d+(?:\.\d+)?$/.test(version) === false) {
+            alert('version must be number');
+            return false;
+        }
+        if (moduleName === '') {
+            alert('moduleName is required');
+            return false;
+        }
+        if (title === '') {
+            alert('title is required');
+            return false;
+        }
+        if (hardwareModuleName === '') {
+            alert('hardwareModuleName is required');
+            return false;
+        }
+
+        compressModule({
+            moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath
+        })
+            .then((result) => {
+                console.log(result);
+            })
+            .catch((e) => {
+                console.error(e);
+            })
+    }
 </script>
 </body>
 </html>
