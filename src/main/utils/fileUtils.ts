@@ -21,6 +21,24 @@ export default class {
         });
     }
 
+    /**
+     * 해당 파일이 존재하는지 확인한다.
+     * @param filePath
+     * @return Promise<boolean>
+     */
+    static isExist(filePath: PathLike) {
+        return new Promise((resolve) => {
+            fs.access(filePath, fs.constants.F_OK, (err) => {
+                if (err) {
+                    console.error(err);
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+
     static compress(files: IArchiverCompression[], destFilePath: PathLike) {
         return new Promise((resolve, reject) => {
             const fsWriteStream = fs.createWriteStream(destFilePath);

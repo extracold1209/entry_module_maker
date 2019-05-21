@@ -10,13 +10,16 @@ const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
 export default async (compressionInfo: EntryModuleCompressionInfo) => {
     const {blockFilePath} = compressionInfo;
 
-    await FileUtils.clearBuildDirectory(getBuildFilePath());
-    await rollupBlockFile(blockFilePath);
-    await writeMetadataFile(makeMetadata(compressionInfo));
-    await compressHardwareModuleFile(compressionInfo);
-    await compressModule(compressionInfo);
-
-    return 'hello';
+    try {
+        await FileUtils.clearBuildDirectory(getBuildFilePath());
+        await rollupBlockFile(blockFilePath);
+        await writeMetadataFile(makeMetadata(compressionInfo));
+        await compressHardwareModuleFile(compressionInfo);
+        await compressModule(compressionInfo);
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
 }
 
 async function rollupBlockFile(blockFilePath: string) {
@@ -60,6 +63,12 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 
     const zipFilePath = path.join(getUnpackedBuildPath(), `${hardwareModuleName}.zip`);
     const hardwareModuleFilePathList = hardwareRequiredExtensionList.map((extension) => {
+        const filePath = path.join(hardwareModulePath, `${hardwareModuleName}${extension}`);
+
+        if (!FileUtils.isExist(filePath)) {
+            throw new Error(`${filePath} not found`);
+        }
+
         return {
             type: 'file',
             filePath: path.join(hardwareModulePath, `${hardwareModuleName}${extension}`)

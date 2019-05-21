@@ -144,10 +144,11 @@
         compressModule({
             moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath
         })
-            .then((result) => {
-                console.log(result);
+            .then(() => {
+                alert('Module Compressed Successfully.');
             })
             .catch((e) => {
+                alert('Module Compression Failed. Detail error wrote on devtool console.');
                 console.error(e);
             })
     }
