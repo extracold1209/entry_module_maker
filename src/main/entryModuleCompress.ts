@@ -15,18 +15,19 @@ export default async (compressionInfo: EntryModuleCompressionInfo) => {
         await rollupBlockFile(blockFilePath);
         await writeMetadataFile(makeMetadata(compressionInfo));
         await compressHardwareModuleFile(compressionInfo);
+        await copyImageFile(compressionInfo);
         await compressModule(compressionInfo);
     } catch (e) {
         console.error(e);
         throw e;
     }
-}
+};
 
 async function rollupBlockFile(blockFilePath: string) {
     const blockFileName = path.basename(blockFilePath);
     const bundle = await rollup({
         input: blockFilePath,
-        plugins: [moduleReplacerPlugin()]
+        plugins: [moduleReplacerPlugin()],
     });
     await bundle.write({
         format: 'iife',
@@ -34,12 +35,20 @@ async function rollupBlockFile(blockFilePath: string) {
     });
 }
 
+/**
+ * in imageFile's case,
+ * default is entry-hw module's image if not set specific image Path.
+ * @param compressionInfo
+ */
 function makeMetadata(compressionInfo: EntryModuleCompressionInfo): EntryModuleMetadata {
     return {
         name: compressionInfo.moduleName,
         title: compressionInfo.title,
         description: compressionInfo.description,
         version: compressionInfo.version,
+        imageFile: compressionInfo.imageFilePath ?
+            path.basename(compressionInfo.imageFilePath) :
+            `${compressionInfo.hardwareModuleName}.png`,
         blockName: path.basename(compressionInfo.blockFilePath),
         moduleName: `${compressionInfo.hardwareModuleName}.zip`,
     };
@@ -71,15 +80,29 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 
         return {
             type: 'file',
-            filePath: path.join(hardwareModulePath, `${hardwareModuleName}${extension}`)
+            filePath: path.join(hardwareModulePath, `${hardwareModuleName}${extension}`),
         };
     });
 
     await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
 }
 
+async function copyImageFile(compressionInfo: EntryModuleCompressionInfo) {
+    const {hardwareModulePath, hardwareModuleName, imageFilePath} = compressionInfo;
+
+    if (imageFilePath) {
+        // 이미지 파일 경로를 따로 지정해준경우
+        const imageFileName = path.basename(imageFilePath);
+        await FileUtils.copyFile(imageFilePath, path.join(getUnpackedBuildPath(), imageFileName));
+    } else {
+        // 이미지 파일이 따로 지정되지 않은 경우
+        const imageFileName = `${hardwareModuleName}.png`;
+        await FileUtils.copyFile(path.join(hardwareModulePath, imageFileName), path.join(getUnpackedBuildPath(), imageFileName));
+    }
+}
+
 async function compressModule(compressionInfo: EntryModuleCompressionInfo) {
-    const { moduleName } = compressionInfo;
+    const {moduleName} = compressionInfo;
     const moduleFilePath = path.join(getBuildFilePath(), `${moduleName}.zip`);
     const archiverInformation = {
         type: 'directory',

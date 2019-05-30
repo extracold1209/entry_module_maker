@@ -17,6 +17,6 @@ export default function EntryModuleReplacer(): Plugin {
         name: 'EntryModuleReplacer', // this name will show up in warnings and errors
         transform(contents) {
             return contents.replace(searchRegex, targetValue);
-        }
+        },
     };
 }

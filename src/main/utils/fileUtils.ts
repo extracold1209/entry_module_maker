@@ -9,7 +9,7 @@ interface IArchiverCompression {
 }
 
 export default class {
-    static clearBuildDirectory(directoryPath: string) {
+    public static clearBuildDirectory(directoryPath: string) {
         return new Promise((resolve, reject) => {
             rimraf(directoryPath, (err) => {
                 if (err) {
@@ -26,7 +26,7 @@ export default class {
      * @param filePath
      * @return Promise<boolean>
      */
-    static isExist(filePath: PathLike) {
+    public static isExist(filePath: PathLike) {
         return new Promise((resolve) => {
             fs.access(filePath, fs.constants.F_OK, (err) => {
                 if (err) {
@@ -39,7 +39,19 @@ export default class {
         });
     }
 
-    static compress(files: IArchiverCompression[], destFilePath: PathLike) {
+    public static copyFile(src: PathLike, dest: PathLike) {
+        return new Promise((resolve, reject) => {
+            fs.copyFile(src, dest, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    }
+
+    public static compress(files: IArchiverCompression[], destFilePath: PathLike) {
         return new Promise((resolve, reject) => {
             const fsWriteStream = fs.createWriteStream(destFilePath);
             const archiver = Archiver('tar');
