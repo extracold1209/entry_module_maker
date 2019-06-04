@@ -1,4 +1,4 @@
-import fs, {PathLike} from 'fs';
+import fs from 'fs';
 import path from 'path';
 import {rollup} from 'rollup';
 import moduleReplacerPlugin from './entryModuleReplacer';
@@ -57,6 +57,9 @@ async function makeMetadata(compressionInfo: EntryModuleCompressionInfo): Promis
     if (hardwareInfo.firmware) {
         hardwareMetadata.firmware = hardwareInfo.firmware;
     }
+    if (hardwareInfo.id) {
+        hardwareMetadata.id = hardwareInfo.id;
+    }
 
     return {
         moduleName: compressionInfo.moduleName,
@@ -84,12 +87,11 @@ function writeMetadataFile(metadata: EntryModuleMetadata) {
 
 async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressionInfo) {
     const {hardwareModulePath, moduleName} = compressionInfo;
-    const hardwareRequiredExtensionList = ['.png', '.js', '.json'];
 
-    await modifyHardwareJson(path.join(hardwareModulePath, `${moduleName}.json`), compressionInfo);
+    const { icon, module } = await forceModifyHardwareModule(compressionInfo);
     const zipFilePath = path.join(getUnpackedBuildPath(), `${moduleName}.zip`);
-    const hardwareModuleFilePathList = hardwareRequiredExtensionList.map((extension) => {
-        const filePath = path.join(hardwareModulePath, `${moduleName}${extension}`);
+    const hardwareModuleFilePathList = [`${moduleName}.json`, icon, module].map((file) => {
+        const filePath = path.join(hardwareModulePath, file);
 
         if (!FileUtils.isExist(filePath)) {
             throw new Error(`${filePath} not found`);
@@ -97,23 +99,32 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 
         return {
             type: 'file',
-            filePath: path.join(hardwareModulePath, `${moduleName}${extension}`),
+            filePath: path.join(hardwareModulePath, file),
         };
     });
 
     await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
 }
 
+async function validateAndChangeHardwareFiles(icon: string, module: string) {
+
+}
+
 /**
- * 이전 하드웨어 모듈을 강제로 최신 프로퍼티로 치환해주는 로직.
- * 추후에는 필요 없을 수 있으나 모든 하드웨어가 전부 모듈화되기전까지는 필요하다.
- * @param jsonFilePath entry-hw 내 module.json
+ * 이전 하드웨어 모듈을 강제로 최신규약으로 수정하는 로직.
+ * 아래의 일을 수행한다.
+ * - moduleName, version 프로퍼티 주입
+ * - icon, module 이 json 파일명과 다른 경우, 파일을 복사하고 강제로 icon, module 을 동일화
+ *   (타사의 파일을 참조할 경우가 있을 수 있으므로 동일 코드여도 따로 관리하도록 규정)
+ * @param hardwareModulePath 모듈이 존재하는 디렉토리
  * @param version 모듈 버전
  * @param moduleName 모듈명
  */
-async function modifyHardwareJson(jsonFilePath: PathLike, { version, moduleName }:EntryModuleCompressionInfo) {
+async function forceModifyHardwareModule({ hardwareModulePath, version, moduleName }:EntryModuleCompressionInfo): Promise<HardwareInformation> {
     return new Promise((resolve, reject) => {
-        fs.readFile(jsonFilePath, (err, data) => {
+        const jsonFilePath = path.join(hardwareModulePath, `${moduleName}.json`);
+
+        fs.readFile(jsonFilePath, async (err, data) => {
             if (err) {
                 reject(err);
                 return;
@@ -124,11 +135,46 @@ async function modifyHardwareJson(jsonFilePath: PathLike, { version, moduleName 
             configJson.moduleName = moduleName;
             configJson.version = version;
 
+            if (configJson.icon) {
+                const [name, extension] = configJson.icon.split('.');
+                if (name !== moduleName) {
+                    const newIconFileName = `${configJson.moduleName}.${extension}`;
+                    await FileUtils.copyFile(
+                        path.join(hardwareModulePath, configJson.icon),
+                        path.join(hardwareModulePath, newIconFileName)
+                    );
+                    configJson.icon = newIconFileName;
+                }
+            }
+
+            if (configJson.icon) {
+                const [name, extension] = configJson.icon.split('.');
+                if (name !== moduleName) {
+                    const newIconFileName = `${configJson.moduleName}.${extension}`;
+                    await FileUtils.copyFile(
+                        path.join(hardwareModulePath, configJson.icon),
+                        path.join(hardwareModulePath, newIconFileName)
+                    );
+                    configJson.icon = newIconFileName;
+                }
+            }
+            if (configJson.module) {
+                const [name, extension] = configJson.module.split('.');
+                if (name !== moduleName) {
+                    const newModuleFileName = `${configJson.moduleName}.${extension}`;
+                    await FileUtils.copyFile(
+                        path.join(hardwareModulePath, configJson.icon),
+                        path.join(hardwareModulePath, newModuleFileName)
+                    );
+                    configJson.module = newModuleFileName;
+                }
+            }
+
             fs.writeFile(jsonFilePath, JSON.stringify(configJson, null, 4), (err) => {
                 if (err) {
                     reject(err);
                 } else {
-                    resolve();
+                    resolve(configJson);
                 }
             });
         })
