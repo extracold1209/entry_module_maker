@@ -14,7 +14,6 @@ declare interface EntryModuleCompressionInfo {
     description: string,
     version: number,
     blockFilePath: string,
-    imageFilePath: string,
     hardwareModulePath: string,
     hardwareModuleName: string,
 }

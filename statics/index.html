@@ -42,15 +42,6 @@
                     <input id="blockFileSelector" style="display: none;" type="file" hidden>
                 </div>
                 <div class="ui fluid labeled icon input">
-                    <div class="ui label" data-tooltip="if empty, it will be hardwareModule's image" data-position="right center">
-                        imageFile
-                        <i class="question circle icon"></i>
-                    </div>
-                    <input id="imageFile" class="savable" type="text" placeholder="/entry-hw/app/modules/image.png">
-                    <i id="imageFileIcon" class="inverted circular search link icon"></i>
-                    <input id="imageFileSelector" style="display: none;" type="file" hidden>
-                </div>
-                <div class="ui fluid labeled icon input">
                     <div class="ui label">hardwareModulePath</div>
                     <input id="hardwareModulePath" class="savable" type="text" placeholder="/entry-hw/app/modules">
                     <i id="hardwareModulePathIcon" class="inverted circular search link icon"></i>
@@ -79,7 +70,6 @@
     $(document).ready(() => {
         initFileSelection('blockFile', 'blockFileIcon', 'blockFileSelector');
         initFileSelection('hardwareModulePath', 'hardwareModulePathIcon', 'hardwareModulePathSelector');
-        initFileSelection('imageFile', 'imageFileIcon', 'imageFileSelector');
         $('.savable').on('keydown change', dataSaveFunction);
         $('#submit').on('click', onSubmitData);
         restoreDataFromLocalStorage();
@@ -126,7 +116,6 @@
         const hardwareModulePath = $('#hardwareModulePath').val();
         const hardwareModuleName = $('#hardwareModuleName').val();
         const blockFilePath = $('#blockFile').val();
-        const imageFilePath = $('#imageFile').val();
 
         if (/^\d+(?:\.\d+)?$/.test(version) === false) {
             alert('version must be number');
@@ -146,7 +135,7 @@
         }
 
         compressModule({
-            moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath, imageFilePath
+            moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath
         })
             .then(() => {
                 alert('Module Compressed Successfully.');

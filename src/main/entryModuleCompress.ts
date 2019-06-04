@@ -46,9 +46,7 @@ function makeMetadata(compressionInfo: EntryModuleCompressionInfo): EntryModuleM
         title: compressionInfo.title,
         description: compressionInfo.description,
         version: compressionInfo.version,
-        imageFile: compressionInfo.imageFilePath ?
-            path.basename(compressionInfo.imageFilePath) :
-            `${compressionInfo.hardwareModuleName}.png`,
+        imageFile: `${compressionInfo.hardwareModuleName}.png`,
         blockName: path.basename(compressionInfo.blockFilePath),
         moduleName: `${compressionInfo.hardwareModuleName}.zip`,
     };
@@ -88,17 +86,9 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 }
 
 async function copyImageFile(compressionInfo: EntryModuleCompressionInfo) {
-    const {hardwareModulePath, hardwareModuleName, imageFilePath} = compressionInfo;
-
-    if (imageFilePath) {
-        // 이미지 파일 경로를 따로 지정해준경우
-        const imageFileName = path.basename(imageFilePath);
-        await FileUtils.copyFile(imageFilePath, path.join(getUnpackedBuildPath(), imageFileName));
-    } else {
-        // 이미지 파일이 따로 지정되지 않은 경우
-        const imageFileName = `${hardwareModuleName}.png`;
-        await FileUtils.copyFile(path.join(hardwareModulePath, imageFileName), path.join(getUnpackedBuildPath(), imageFileName));
-    }
+    const {hardwareModulePath, hardwareModuleName } = compressionInfo;
+    const imageFileName = `${hardwareModuleName}.png`;
+    await FileUtils.copyFile(path.join(hardwareModulePath, imageFileName), path.join(getUnpackedBuildPath(), imageFileName));
 }
 
 async function compressModule(compressionInfo: EntryModuleCompressionInfo) {
