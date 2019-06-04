@@ -51,6 +51,23 @@ export default class {
         });
     }
 
+    public static readJSONFile<T>(src: PathLike): Promise<T> {
+        return new Promise((resolve, reject) => {
+            if (!src.toString().match(/\.json$/)) {
+                reject(`${src} file not json`);
+                return;
+            }
+
+            fs.readFile(src, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(JSON.parse(data.toString()) as T);
+                }
+            })
+        })
+    }
+
     public static compress(files: IArchiverCompression[], destFilePath: PathLike) {
         return new Promise((resolve, reject) => {
             const fsWriteStream = fs.createWriteStream(destFilePath);

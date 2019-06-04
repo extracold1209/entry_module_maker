@@ -10,18 +10,17 @@
     <div class="ui vertically divided grid">
         <div class="row"></div>
         <div class="row">
+            <div class="twelve column">
+                <h1 class="ui header">Entry Hardware Module Maker</h1>
+            </div>
+        </div>
+        <div class="row">
             <div class="twelve column segment">
                 <div class="ui fluid labeled input">
                     <div class="ui label">
                         moduleName
                     </div>
                     <input id="moduleName" class="savable" type="text" placeholder="arduino">
-                </div>
-                <div class="ui fluid labeled input">
-                    <div class="ui label">
-                        title
-                    </div>
-                    <input id="title" class="savable" type="text" placeholder="...">
                 </div>
                 <div class="ui fluid labeled input">
                     <div class="ui label">
@@ -98,7 +97,6 @@
 
     function onSubmitData() {
         const moduleName = $('#moduleName').val();
-        const title = $('#title').val();
         const version = $('#version').val();
         const hardwareModulePath = $('#hardwareModulePath').val();
         const blockFilePath = $('#blockFile').val();
@@ -111,13 +109,13 @@
             alert('moduleName is required');
             return false;
         }
-        if (title === '') {
-            alert('title is required');
-            return false;
-        }
 
         compressModule({
-            moduleName, title, version, hardwareModulePath, blockFilePath
+            moduleName,
+            version,
+            hardwareModulePath,
+            blockFilePath,
+            type: 'hardware',
         })
             .then(() => {
                 alert('Module Compressed Successfully.');

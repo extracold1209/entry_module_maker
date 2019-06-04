@@ -13,7 +13,7 @@ export default async (compressionInfo: EntryModuleCompressionInfo) => {
     try {
         await FileUtils.clearBuildDirectory(getBuildFilePath());
         await rollupBlockFile(blockFilePath);
-        await writeMetadataFile(makeMetadata(compressionInfo));
+        await writeMetadataFile(await makeMetadata(compressionInfo));
         await compressHardwareModuleFile(compressionInfo);
         await copyImageFile(compressionInfo);
         await compressModule(compressionInfo);
@@ -25,6 +25,9 @@ export default async (compressionInfo: EntryModuleCompressionInfo) => {
 
 async function rollupBlockFile(blockFilePath: string) {
     const blockFileName = path.basename(blockFilePath);
+    if (!await FileUtils.isExist(blockFilePath)) {
+        throw new Error(`${blockFilePath} not exist`);
+    }
     const bundle = await rollup({
         input: blockFilePath,
         plugins: [moduleReplacerPlugin()],
@@ -40,14 +43,30 @@ async function rollupBlockFile(blockFilePath: string) {
  * default is entry-hw module's image if not set specific image Path.
  * @param compressionInfo
  */
-function makeMetadata(compressionInfo: EntryModuleCompressionInfo): EntryModuleMetadata {
+async function makeMetadata(compressionInfo: EntryModuleCompressionInfo): Promise<EntryHardwareModuleMetadata> {
+    const { hardwareModulePath, moduleName } = compressionInfo;
+    const hardwareInfo = await FileUtils.readJSONFile<HardwareInformation>(path.join(hardwareModulePath, `${moduleName}.json`));
+
+    const hardwareMetadata: HardwareMetadata = {
+        category: hardwareInfo.category,
+        platform: hardwareInfo.platform
+    };
+    if (hardwareInfo.driver) {
+        hardwareMetadata.driver = hardwareInfo.driver;
+    }
+    if (hardwareInfo.firmware) {
+        hardwareMetadata.firmware = hardwareInfo.firmware;
+    }
+
     return {
-        name: compressionInfo.moduleName,
-        title: compressionInfo.title,
+        moduleName: compressionInfo.moduleName,
+        title: hardwareInfo.name,
         version: compressionInfo.version,
         imageFile: `${compressionInfo.moduleName}.png`,
-        blockName: path.basename(compressionInfo.blockFilePath),
-        moduleName: `${compressionInfo.moduleName}.zip`,
+        blockFile: path.basename(compressionInfo.blockFilePath),
+        moduleFile: `${compressionInfo.moduleName}.zip`,
+        type: 'hardware',
+        hardware: hardwareMetadata,
     };
 }
 
@@ -85,7 +104,7 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 }
 
 async function copyImageFile(compressionInfo: EntryModuleCompressionInfo) {
-    const {hardwareModulePath, moduleName } = compressionInfo;
+    const {hardwareModulePath, moduleName} = compressionInfo;
     const imageFileName = `${moduleName}.png`;
     await FileUtils.copyFile(path.join(hardwareModulePath, imageFileName), path.join(getUnpackedBuildPath(), imageFileName));
 }
