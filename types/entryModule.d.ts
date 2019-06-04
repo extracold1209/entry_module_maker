@@ -1,9 +1,4 @@
 declare type ModuleTypes = 'hardware'
-declare type DriverOSTypes = {
-    'win32-ia32'?: string,
-    'win32-x64'?: string,
-    'darwin-x64'?: string,
-}
 
 declare interface EntryModuleMetadata {
     moduleName: string,
@@ -13,21 +8,6 @@ declare interface EntryModuleMetadata {
     blockFile: string,
     moduleFile: string,
     type: ModuleTypes,
-}
-
-declare interface HardwareMetadata {
-    platform: string | string[],
-    category: string,
-    firmware?: string,
-    driver?: DriverOSTypes,
-}
-
-declare interface HardwareInformation extends HardwareMetadata {
-    name: LanguageTemplateObject,
-}
-
-declare interface EntryHardwareModuleMetadata extends EntryModuleMetadata {
-    hardware: HardwareMetadata
 }
 
 declare interface EntryModuleCompressionInfo {
