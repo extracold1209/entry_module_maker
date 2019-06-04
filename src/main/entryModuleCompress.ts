@@ -45,9 +45,9 @@ function makeMetadata(compressionInfo: EntryModuleCompressionInfo): EntryModuleM
         name: compressionInfo.moduleName,
         title: compressionInfo.title,
         version: compressionInfo.version,
-        imageFile: `${compressionInfo.hardwareModuleName}.png`,
+        imageFile: `${compressionInfo.moduleName}.png`,
         blockName: path.basename(compressionInfo.blockFilePath),
-        moduleName: `${compressionInfo.hardwareModuleName}.zip`,
+        moduleName: `${compressionInfo.moduleName}.zip`,
     };
 }
 
@@ -64,12 +64,12 @@ function writeMetadataFile(metadata: EntryModuleMetadata) {
 }
 
 async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressionInfo) {
-    const {hardwareModulePath, hardwareModuleName} = compressionInfo;
+    const {hardwareModulePath, moduleName} = compressionInfo;
     const hardwareRequiredExtensionList = ['.png', '.js', '.json'];
 
-    const zipFilePath = path.join(getUnpackedBuildPath(), `${hardwareModuleName}.zip`);
+    const zipFilePath = path.join(getUnpackedBuildPath(), `${moduleName}.zip`);
     const hardwareModuleFilePathList = hardwareRequiredExtensionList.map((extension) => {
-        const filePath = path.join(hardwareModulePath, `${hardwareModuleName}${extension}`);
+        const filePath = path.join(hardwareModulePath, `${moduleName}${extension}`);
 
         if (!FileUtils.isExist(filePath)) {
             throw new Error(`${filePath} not found`);
@@ -77,7 +77,7 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 
         return {
             type: 'file',
-            filePath: path.join(hardwareModulePath, `${hardwareModuleName}${extension}`),
+            filePath: path.join(hardwareModulePath, `${moduleName}${extension}`),
         };
     });
 
@@ -85,8 +85,8 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
 }
 
 async function copyImageFile(compressionInfo: EntryModuleCompressionInfo) {
-    const {hardwareModulePath, hardwareModuleName } = compressionInfo;
-    const imageFileName = `${hardwareModuleName}.png`;
+    const {hardwareModulePath, moduleName } = compressionInfo;
+    const imageFileName = `${moduleName}.png`;
     await FileUtils.copyFile(path.join(hardwareModulePath, imageFileName), path.join(getUnpackedBuildPath(), imageFileName));
 }
 

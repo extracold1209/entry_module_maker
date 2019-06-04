@@ -13,7 +13,6 @@ declare interface EntryModuleCompressionInfo {
     version: number,
     blockFilePath: string,
     hardwareModulePath: string,
-    hardwareModuleName: string,
 }
 
 declare interface LanguageTemplateObject {

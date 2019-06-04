@@ -41,12 +41,6 @@
                     <i id="hardwareModulePathIcon" class="inverted circular search link icon"></i>
                     <input id="hardwareModulePathSelector" style="display: none;" type="file" directory webkitdirectory>
                 </div>
-                <div class="ui fluid labeled input">
-                    <div class="ui label">
-                        hardwareModuleName
-                    </div>
-                    <input id="hardwareModuleName" class="savable" type="text" placeholder="arduino">
-                </div>
             </div>
         </div>
         <div class="row">
@@ -107,7 +101,6 @@
         const title = $('#title').val();
         const version = $('#version').val();
         const hardwareModulePath = $('#hardwareModulePath').val();
-        const hardwareModuleName = $('#hardwareModuleName').val();
         const blockFilePath = $('#blockFile').val();
 
         if (/^\d+(?:\.\d+)?$/.test(version) === false) {
@@ -122,13 +115,9 @@
             alert('title is required');
             return false;
         }
-        if (hardwareModuleName === '') {
-            alert('hardwareModuleName is required');
-            return false;
-        }
 
         compressModule({
-            moduleName, title, version, hardwareModulePath, hardwareModuleName, blockFilePath
+            moduleName, title, version, hardwareModulePath, blockFilePath
         })
             .then(() => {
                 alert('Module Compressed Successfully.');
