@@ -44,7 +44,6 @@ function makeMetadata(compressionInfo: EntryModuleCompressionInfo): EntryModuleM
     return {
         name: compressionInfo.moduleName,
         title: compressionInfo.title,
-        description: compressionInfo.description,
         version: compressionInfo.version,
         imageFile: `${compressionInfo.hardwareModuleName}.png`,
         blockName: path.basename(compressionInfo.blockFilePath),

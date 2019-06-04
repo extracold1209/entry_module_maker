@@ -1,7 +1,6 @@
 declare interface EntryModuleMetadata {
     name: string,
     title: string,
-    description: string,
     version: number,
     imageFile: string,
     blockName: string,
@@ -11,7 +10,6 @@ declare interface EntryModuleMetadata {
 declare interface EntryModuleCompressionInfo {
     moduleName: string,
     title: string,
-    description: string,
     version: number,
     blockFilePath: string,
     hardwareModulePath: string,

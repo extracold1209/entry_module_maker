@@ -25,12 +25,6 @@
                 </div>
                 <div class="ui fluid labeled input">
                     <div class="ui label">
-                        description
-                    </div>
-                    <input id="description" class="savable" type="text" placeholder="...">
-                </div>
-                <div class="ui fluid labeled input">
-                    <div class="ui label">
                         version
                     </div>
                     <input id="version" class="savable" type="text" placeholder="1.00">
@@ -112,7 +106,6 @@
         const moduleName = $('#moduleName').val();
         const title = $('#title').val();
         const version = $('#version').val();
-        const description = $('#description').val();
         const hardwareModulePath = $('#hardwareModulePath').val();
         const hardwareModuleName = $('#hardwareModuleName').val();
         const blockFilePath = $('#blockFile').val();
@@ -135,7 +128,7 @@
         }
 
         compressModule({
-            moduleName, title, version, description, hardwareModulePath, hardwareModuleName, blockFilePath
+            moduleName, title, version, hardwareModulePath, hardwareModuleName, blockFilePath
         })
             .then(() => {
                 alert('Module Compressed Successfully.');
