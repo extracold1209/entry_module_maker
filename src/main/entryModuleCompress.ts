@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, {PathLike} from 'fs';
 import path from 'path';
 import {rollup} from 'rollup';
 import moduleReplacerPlugin from './entryModuleReplacer';
@@ -60,7 +60,7 @@ async function makeMetadata(compressionInfo: EntryModuleCompressionInfo): Promis
 
     return {
         moduleName: compressionInfo.moduleName,
-        title: hardwareInfo.name,
+        name: hardwareInfo.name,
         version: compressionInfo.version,
         imageFile: `${compressionInfo.moduleName}.png`,
         blockFile: path.basename(compressionInfo.blockFilePath),
@@ -86,6 +86,7 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
     const {hardwareModulePath, moduleName} = compressionInfo;
     const hardwareRequiredExtensionList = ['.png', '.js', '.json'];
 
+    await modifyHardwareJson(path.join(hardwareModulePath, `${moduleName}.json`), compressionInfo);
     const zipFilePath = path.join(getUnpackedBuildPath(), `${moduleName}.zip`);
     const hardwareModuleFilePathList = hardwareRequiredExtensionList.map((extension) => {
         const filePath = path.join(hardwareModulePath, `${moduleName}${extension}`);
@@ -101,6 +102,37 @@ async function compressHardwareModuleFile(compressionInfo: EntryModuleCompressio
     });
 
     await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
+}
+
+/**
+ * 이전 하드웨어 모듈을 강제로 최신 프로퍼티로 치환해주는 로직.
+ * 추후에는 필요 없을 수 있으나 모든 하드웨어가 전부 모듈화되기전까지는 필요하다.
+ * @param jsonFilePath entry-hw 내 module.json
+ * @param version 모듈 버전
+ * @param moduleName 모듈명
+ */
+async function modifyHardwareJson(jsonFilePath: PathLike, { version, moduleName }:EntryModuleCompressionInfo) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(jsonFilePath, (err, data) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+
+            const configJson = JSON.parse(data.toString());
+
+            configJson.moduleName = moduleName;
+            configJson.version = version;
+
+            fs.writeFile(jsonFilePath, JSON.stringify(configJson, null, 4), (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        })
+    });
 }
 
 async function copyImageFile(compressionInfo: EntryModuleCompressionInfo) {

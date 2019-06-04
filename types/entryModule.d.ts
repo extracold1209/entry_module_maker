@@ -7,7 +7,7 @@ declare type DriverOSTypes = {
 
 declare interface EntryModuleMetadata {
     moduleName: string,
-    title: LanguageTemplateObject | string,
+    name: LanguageTemplateObject | string,
     version: number,
     imageFile: string,
     blockFile: string,
