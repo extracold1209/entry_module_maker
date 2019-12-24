@@ -101,8 +101,8 @@
         const hardwareModulePath = $('#hardwareModulePath').val();
         const blockFilePath = $('#blockFile').val();
 
-        if (/^\d+(?:\.\d+)?$/.test(version) === false) {
-            alert('version must be number');
+        if (/^\d+\.\d+\.\d+$/.test(version) === false) {
+            alert('version must be like semver');
             return false;
         }
         if (moduleName === '') {
@@ -115,7 +115,6 @@
             version,
             hardwareModulePath,
             blockFilePath,
-            type: 'hardware',
         })
             .then(() => {
                 alert('Module Compressed Successfully.');

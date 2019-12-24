@@ -64,8 +64,8 @@ export default class {
                 } else {
                     resolve(JSON.parse(data.toString()) as T);
                 }
-            })
-        })
+            });
+        });
     }
 
     public static compress(files: IArchiverCompression[], destFilePath: PathLike) {
@@ -79,10 +79,10 @@ export default class {
 
             archiver.pipe(fsWriteStream);
             files.forEach((file) => {
-                const {type, filePath} = file;
+                const { type, filePath } = file;
                 switch (type) {
                     case 'file':
-                        archiver.file(filePath, {name: path.basename(filePath)});
+                        archiver.file(filePath, { name: path.basename(filePath) });
                         break;
                     case 'directory':
                         archiver.directory(filePath, false);

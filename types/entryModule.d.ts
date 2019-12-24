@@ -1,25 +1,54 @@
-declare type ModuleTypes = 'hardware'
-
-declare interface EntryModuleMetadata {
-    moduleName: string,
-    name: LanguageTemplateObject | string,
-    version: number,
-    imageFile: string,
-    blockFile: string,
-    moduleFile: string,
-    type: ModuleTypes,
-}
+declare type ObjectLike = { [key: string]: string };
 
 declare interface EntryModuleCompressionInfo {
     moduleName: string,
-    version: number,
+    version: string,
+    hardwareModulePath: string;
     blockFilePath: string,
-    hardwareModulePath: string,
-    type: ModuleTypes
+}
+
+declare interface EntryModuleMetadata extends HardwareMetadata {
+    moduleName: string,
+    version: string,
 }
 
 declare interface LanguageTemplateObject {
     ko?: string,
     en?: string,
     jp?: string,
+}
+
+declare type DriverOSTypes = {
+    'win32-ia32'?: string,
+    'win32-x64'?: string,
+    'darwin-x64'?: string,
+}
+
+declare type IDriverInfo = ObjectLike | [{ translate: string } & ObjectLike]
+declare type IFirmwareInfo =
+    string
+    | [{ name: string; translate: string }]
+    | { afterDelay: number, name: string; type: string }
+
+declare interface RequiredHardwareMetadata {
+    category: 'board' | 'robot' | 'module';
+    entry: { protocol: 'json' };
+    id: string;
+    name: LanguageTemplateObject | string,
+    icon: string;
+    module: string;
+    platform: any;
+    hardware: any; // hardware Info
+}
+
+declare interface HardwareMetadata extends RequiredHardwareMetadata {
+    // optional
+    driver?: IDriverInfo;
+    firmware?: IFirmwareInfo;
+    url?: string;
+    email?: string;
+    video?: string | string[];
+    reconnect?: boolean;
+    select_com_port?: boolean;
+    tryFlasherNumber?: number;
 }
