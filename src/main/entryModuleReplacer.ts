@@ -1,4 +1,4 @@
-import {Plugin} from 'rollup';
+import { Plugin } from 'rollup';
 
 /**
  * for only Entry Project.

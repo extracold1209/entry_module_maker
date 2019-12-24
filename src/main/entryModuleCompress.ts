@@ -1,7 +1,7 @@
 import fs from 'fs';
-import {merge, omit} from 'lodash';
+import { merge, omit } from 'lodash';
 import path from 'path';
-import {rollup} from 'rollup';
+import { rollup } from 'rollup';
 import moduleReplacerPlugin from './entryModuleReplacer';
 import FileUtils from './utils/fileUtils';
 

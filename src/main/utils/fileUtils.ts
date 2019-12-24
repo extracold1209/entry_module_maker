@@ -1,5 +1,5 @@
 import Archiver from 'archiver';
-import fs, {PathLike} from 'fs';
+import fs, { PathLike } from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 
