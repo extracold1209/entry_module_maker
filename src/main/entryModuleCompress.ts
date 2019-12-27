@@ -18,7 +18,7 @@ export default async(compressionInfo: EntryModuleCompressionInfo) => {
         );
         await FileUtils.clearBuildDirectory(getBuildFilePath());
         await rollupBlockFile(blockFilePath);
-        await writeMetadataFile(moduleMetadata);
+        await writeConfigFile(moduleMetadata);
         await compressHardwareModuleFile(hardwareModulePath, moduleMetadata);
         await compressModule(moduleMetadata);
     } catch (e) {
@@ -52,9 +52,10 @@ async function rollupBlockFile(blockFilePath: string) {
     });
 }
 
-function writeMetadataFile(metadata: EntryModuleMetadata) {
+function writeConfigFile(metadata: EntryModuleMetadata) {
+    const { moduleName } = metadata;
     return new Promise((resolve, reject) => {
-        fs.writeFile(path.join(getUnpackedBuildPath(), 'metadata.json'), JSON.stringify(metadata), (err) => {
+        fs.writeFile(path.join(getUnpackedBuildPath(), `${moduleName}.json`), JSON.stringify(metadata), (err) => {
             if (err) {
                 reject(err);
             } else {
@@ -73,7 +74,7 @@ async function compressHardwareModuleFile(baseHardwareModulePath: string, compre
         if (!await FileUtils.isExist(filePath)) {
             throw new Error(`${filePath} not found`);
         }
-        
+
         await FileUtils.copyFile(filePath, path.join(getUnpackedBuildPath(), file));
     }));
 }
