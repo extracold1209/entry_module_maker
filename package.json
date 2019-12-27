@@ -18,7 +18,7 @@
     "@typescript-eslint/eslint-plugin": "^2.13.0",
     "@typescript-eslint/parser": "^2.13.0",
     "archiver": "^3.0.0",
-    "electron": "^5.0.1",
+    "electron": "^7.1.7",
     "eslint": "^5.16.0",
     "lodash": "^4.17.15",
     "rimraf": "^2.6.3",

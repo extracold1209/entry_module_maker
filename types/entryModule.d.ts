@@ -39,6 +39,8 @@ declare interface RequiredHardwareMetadata {
     module: string;
     platform: any;
     hardware: any; // hardware Info
+
+    block: string; // 모듈화를 위해서는 필수
 }
 
 declare interface HardwareMetadata extends RequiredHardwareMetadata {

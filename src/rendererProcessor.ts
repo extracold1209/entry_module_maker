@@ -1,16 +1,12 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, shell } from 'electron';
+import path from 'path';
 
 process.once('loaded', () => {
-    global.compressModule = (a: EntryModuleCompressionInfo) => {
-        return new Promise((resolve, reject) => {
-            ipcRenderer.send('compress', a);
-            ipcRenderer.on('compress', (event: Electron.Event, error?: any) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    global.compressModule = async (compressionInfo: EntryModuleCompressionInfo) => {
+        await ipcRenderer.invoke('compress', compressionInfo);
+    };
+
+    global.openBuildDirectory = () => {
+        shell.openItem(path.join(__dirname, '..', 'build'));
     };
 });

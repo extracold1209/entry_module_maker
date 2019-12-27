@@ -33,8 +33,15 @@ async function appendFromHardwareJsonFile(
         throw new Error(`${configFilePath} not exist`);
     }
 
-    const hardwareConfigJson = await FileUtils.readJSONFile(configFilePath);
-    return omit(merge(compressionInfo, hardwareConfigJson), ['hardwareModulePath', 'blockFilePath']) as EntryModuleMetadata;
+    const hardwareConfigJson = await FileUtils.readJSONFile(configFilePath) as EntryModuleMetadata;
+
+    if (!hardwareConfigJson.block) {
+        hardwareConfigJson.block = path.basename(compressionInfo.blockFilePath);
+    }
+
+    return omit(
+        merge(compressionInfo, hardwareConfigJson), ['hardwareModulePath', 'blockFilePath']
+    ) as EntryModuleMetadata;
 }
 
 async function rollupBlockFile(blockFilePath: string) {

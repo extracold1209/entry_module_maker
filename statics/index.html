@@ -47,6 +47,9 @@
                 <button id="submit" class="ui secondary button">
                     Okay
                 </button>
+                <button id="open-folder" class="ui secondary button">
+                    Open Folder
+                </button>
             </div>
         </div>
     </div>
@@ -59,6 +62,7 @@
         initFileSelection('hardwareModulePath', 'hardwareModulePathIcon', 'hardwareModulePathSelector');
         $('.savable').on('keydown change', dataSaveFunction);
         $('#submit').on('click', onSubmitData);
+        $('#open-folder').on('click', openBuildDirectory);
         restoreDataFromLocalStorage();
     });
 

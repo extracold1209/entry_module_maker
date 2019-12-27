@@ -37,12 +37,6 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on('compress', async(event: Electron.Event, data: EntryModuleCompressionInfo) => {
-    try {
-        await entryModuleCompress(data);
-        event.sender.send('compress');
-    } catch (e) {
-        console.error(e);
-        event.sender.send('compress', e);
-    }
+ipcMain.handle('compress', async(event: Electron.Event, data: EntryModuleCompressionInfo) => {
+    return await entryModuleCompress(data);
 });
