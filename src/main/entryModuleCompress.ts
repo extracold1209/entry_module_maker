@@ -1,5 +1,3 @@
-import fs from 'fs';
-import { merge, omit } from 'lodash';
 import path from 'path';
 import { rollup } from 'rollup';
 import moduleReplacerPlugin from './entryModuleReplacer';
@@ -8,43 +6,28 @@ import FileUtils from './utils/fileUtils';
 const getBuildFilePath = () => path.join(global.__rootDir, 'build');
 const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
 
+
 export default async(compressionInfo: EntryModuleCompressionInfo) => {
-    const { blockFilePath, hardwareModulePath, moduleName } = compressionInfo;
+    const { hardwareModulePath, moduleName, blockFilePath } = compressionInfo;
 
     try {
-        const moduleMetadata = await appendFromHardwareJsonFile(
-            compressionInfo,
-            path.join(hardwareModulePath, `${moduleName}.json`),
-        );
+        const hardwareJSONPath = path.join(hardwareModulePath, `${moduleName}.json`);
+        const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareJSONPath);
+
         await FileUtils.clearBuildDirectory(getBuildFilePath());
         await rollupBlockFile(blockFilePath);
-        await writeConfigFile(moduleMetadata);
-        await compressHardwareModuleFile(hardwareModulePath, moduleMetadata);
-        await compressModule(moduleMetadata);
+        await copyImageFile(hardwareModulePath, hardwareInfo);
+        await forceModifyHardwareModule(hardwareJSONPath, hardwareInfo, compressionInfo);
+        await compressHardwareModuleFile(compressionInfo, hardwareInfo);
+        await writeMetadata(compressionInfo, hardwareInfo);
+        await compressModule(moduleName);
     } catch (e) {
         console.error(e);
         throw e;
     }
 };
 
-async function appendFromHardwareJsonFile(
-    compressionInfo: EntryModuleCompressionInfo, configFilePath: string): Promise<EntryModuleMetadata> {
-    if (!await FileUtils.isExist(configFilePath)) {
-        throw new Error(`${configFilePath} not exist`);
-    }
-
-    const hardwareConfigJson = await FileUtils.readJSONFile(configFilePath) as EntryModuleMetadata;
-
-    if (!hardwareConfigJson.block) {
-        hardwareConfigJson.block = path.basename(compressionInfo.blockFilePath);
-    }
-
-    return omit(
-        merge(compressionInfo, hardwareConfigJson), ['hardwareModulePath', 'blockFilePath']
-    ) as EntryModuleMetadata;
-}
-
-async function rollupBlockFile(blockFilePath: string) {
+async function rollupBlockFile(blockFilePath: string): Promise<void> {
     const blockFileName = path.basename(blockFilePath);
     if (!await FileUtils.isExist(blockFilePath)) {
         throw new Error(`${blockFilePath} not exist`);
@@ -59,31 +42,52 @@ async function rollupBlockFile(blockFilePath: string) {
     });
 }
 
-function writeConfigFile(metadata: EntryModuleMetadata) {
-    const { moduleName } = metadata;
-    return new Promise((resolve, reject) => {
-        fs.writeFile(path.join(getUnpackedBuildPath(), `${moduleName}.json`), JSON.stringify(metadata), (err) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        });
-    });
+async function writeMetadata(compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig): Promise<void> {
+    const { moduleName, blockFilePath, version } = compressionInfo;
+    const metadata: EntryModuleMetadata = {
+        moduleName,
+        version,
+        type: 'hardware',
+        title: hardwareInfo.name,
+        files: {
+            image: hardwareInfo.icon,
+            block: path.basename(blockFilePath),
+            module: `${moduleName}.zip`,
+        },
+    };
+
+    await FileUtils.writeJSONFile(path.join(getUnpackedBuildPath(), 'metadata.json'), metadata);
 }
 
-async function compressHardwareModuleFile(baseHardwareModulePath: string, compressionInfo: EntryModuleMetadata) {
-    // const { icon, module } = await forceModifyHardwareModule(compressionInfo);
-    const { icon, module } = compressionInfo;
-    await Promise.all([icon, module].map(async(file) => {
-        const filePath = path.join(baseHardwareModulePath, file);
+async function copyImageFile(hardwareModulePath: string, hardwareInfo: HardwareConfig): Promise<void> {
+    const { icon } = hardwareInfo;
+    await FileUtils.copyFile(
+        path.join(hardwareModulePath, icon),
+        path.join(getUnpackedBuildPath(), icon),
+    );
+}
 
-        if (!await FileUtils.isExist(filePath)) {
+async function compressHardwareModuleFile(
+    compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig,
+): Promise<void> {
+    const { moduleName, hardwareModulePath } = compressionInfo;
+    const { icon, module } = hardwareInfo;
+
+    const zipFilePath = path.join(getUnpackedBuildPath(), `${moduleName}.zip`);
+    const hardwareModuleFilePathList = [`${moduleName}.json`, icon, module].map((file) => {
+        const filePath = path.join(hardwareModulePath, file);
+
+        if (!FileUtils.isExist(filePath)) {
             throw new Error(`${filePath} not found`);
         }
 
-        await FileUtils.copyFile(filePath, path.join(getUnpackedBuildPath(), file));
-    }));
+        return {
+            type: 'file',
+            filePath: path.join(hardwareModulePath, file),
+        };
+    });
+
+    await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
 }
 
 async function validateAndChangeHardwareFiles(icon: string, module: string) {
@@ -96,62 +100,20 @@ async function validateAndChangeHardwareFiles(icon: string, module: string) {
  * - moduleName, version 프로퍼티 주입
  * - icon, module 이 json 파일명과 다른 경우, 파일을 복사하고 강제로 icon, module 을 동일화
  *   (타사의 파일을 참조할 경우가 있을 수 있으므로 동일 코드여도 따로 관리하도록 규정)
- * @param hardwareModulePath 모듈이 존재하는 디렉토리
- * @param version 모듈 버전
- * @param moduleName 모듈명
  */
-async function forceModifyHardwareModule({ hardwareModulePath, version, moduleName }: EntryModuleCompressionInfo): Promise<EntryModuleCompressionInfo> {
-    return new Promise((resolve, reject) => {
-        const jsonFilePath = path.join(hardwareModulePath, `${moduleName}.json`);
+async function forceModifyHardwareModule(
+    hardwareJSONPath: string,
+    hardwareInfo: HardwareConfig,
+    compressionInfo: EntryModuleCompressionInfo,
+): Promise<void> {
+    const { moduleName, version } = compressionInfo;
 
-        fs.readFile(jsonFilePath, async(err, data) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-
-            const configJson = JSON.parse(data.toString());
-
-            configJson.moduleName = moduleName;
-            configJson.version = version;
-
-            if (configJson.icon) {
-                const [name, extension] = configJson.icon.split('.');
-                if (name !== moduleName) {
-                    const newIconFileName = `${configJson.moduleName}.${extension}`;
-                    await FileUtils.copyFile(
-                        path.join(hardwareModulePath, configJson.icon),
-                        path.join(hardwareModulePath, newIconFileName)
-                    );
-                    configJson.icon = newIconFileName;
-                }
-            }
-
-            if (configJson.module) {
-                const [name, extension] = configJson.module.split('.');
-                if (name !== moduleName) {
-                    const newModuleFileName = `${configJson.moduleName}.${extension}`;
-                    await FileUtils.copyFile(
-                        path.join(hardwareModulePath, configJson.icon),
-                        path.join(hardwareModulePath, newModuleFileName)
-                    );
-                    configJson.module = newModuleFileName;
-                }
-            }
-
-            fs.writeFile(jsonFilePath, JSON.stringify(configJson, null, 4), (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(configJson);
-                }
-            });
-        });
-    });
+    hardwareInfo.moduleName = moduleName;
+    hardwareInfo.version = version;
+    await FileUtils.writeJSONFile(hardwareJSONPath, hardwareInfo);
 }
 
-async function compressModule(compressionInfo: EntryModuleMetadata) {
-    const { moduleName } = compressionInfo;
+async function compressModule(moduleName: string): Promise<void> {
     const moduleFilePath = path.join(getBuildFilePath(), `${moduleName}.zip`);
     const archiverInformation = {
         type: 'directory',

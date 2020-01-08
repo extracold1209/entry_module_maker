@@ -51,6 +51,24 @@ export default class {
         });
     }
 
+    public static writeJSONFile(src: PathLike, content: any) {
+        return new Promise((resolve, reject) => {
+            try {
+                const stringJSON = JSON.stringify(content, null, 4);
+                fs.writeFile(src, stringJSON, (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            } catch (e) {
+                reject(e);
+            }
+
+        });
+    }
+
     public static readJSONFile<T>(src: PathLike): Promise<T> {
         return new Promise((resolve, reject) => {
             if (!src.toString().match(/\.json$/)) {
