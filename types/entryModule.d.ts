@@ -31,6 +31,7 @@ declare interface HardwareConfig {
     name: LanguageTemplateObject | string;
     icon: string;
     module: string;
+    category: string;
     platform: any;
     moduleName?: string; // legacy 에는 없을 수 있음
     version?: string; // legacy 에는 없을 수 있음

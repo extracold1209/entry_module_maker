@@ -44,6 +44,7 @@ async function rollupBlockFile(blockFilePath: string): Promise<void> {
 
 async function writeMetadata(compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig): Promise<void> {
     const { moduleName, blockFilePath, version } = compressionInfo;
+    const { platform, category, id } = hardwareInfo;
     const metadata: EntryModuleMetadata = {
         moduleName,
         version,
@@ -54,6 +55,7 @@ async function writeMetadata(compressionInfo: EntryModuleCompressionInfo, hardwa
             block: path.basename(blockFilePath),
             module: `${moduleName}.zip`,
         },
+        properties: { platform, category, id },
     };
 
     await FileUtils.writeJSONFile(path.join(getUnpackedBuildPath(), 'metadata.json'), metadata);
