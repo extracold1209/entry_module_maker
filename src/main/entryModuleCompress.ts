@@ -1,3 +1,5 @@
+import rollupCommonjs from '@rollup/plugin-commonjs';
+import rollupResolve from '@rollup/plugin-node-resolve';
 import path from 'path';
 import { rollup } from 'rollup';
 import moduleReplacerPlugin from './entryModuleReplacer';
@@ -34,7 +36,8 @@ async function rollupBlockFile(blockFilePath: string): Promise<void> {
     }
     const bundle = await rollup({
         input: blockFilePath,
-        plugins: [moduleReplacerPlugin()],
+        inlineDynamicImports: true,
+        plugins: [rollupResolve(), rollupCommonjs(), moduleReplacerPlugin()],
     });
     await bundle.write({
         format: 'iife',
