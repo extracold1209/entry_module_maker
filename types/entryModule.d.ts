@@ -33,12 +33,21 @@ declare interface HardwareConfig {
     module: string;
     category: string;
     platform: any;
+    firmware?: HardwareFirmware;
+    driver?: HardwareDriver;
     moduleName?: string; // legacy 에는 없을 수 있음
     version?: string; // legacy 에는 없을 수 있음
-    firmware?: HardwareFirmware
 }
 
 declare type HardwareFirmware = string |
     { name: string; translate: string; } |
     { name: string; translate: string; }[] |
     { type: "copy"; name: string; afterDelay: number; }[]
+
+type HardwareDriverElement = {
+    'win32-ia32'?: string;
+    'win32-x64'?: string;
+    'darwin-x64'?: string;
+    translate?: string;
+};
+declare type HardwareDriver = HardwareDriverElement | HardwareDriverElement[];

@@ -1,6 +1,8 @@
 import path from "path";
 import { unpackedBuildPath } from "../../constants";
 import fileUtils, { IArchiverCompression } from "../../utils/fileUtils";
+import extractDriver from "./extractDriver";
+import extractFirmware from "./extractFirmware";
 
 async function compressHardwareModuleFile(
     compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig,
@@ -12,6 +14,13 @@ async function compressHardwareModuleFile(
     const firmwareDirPath = path.join(unpackedBuildPath, 'firmwares');
     const driverDirPath = path.join(unpackedBuildPath, 'drivers');
 
+    if (hardwareInfo.firmware) {
+        await extractFirmware(hardwareModulePath, hardwareInfo.firmware);
+    }
+    if (hardwareInfo.driver) {
+        await extractDriver(hardwareModulePath, hardwareInfo.driver);
+    }
+
     const compressionFilesInfo = prepareExtractFileList(hardwareModulePath, [`${moduleName}.json`, icon, module]);
     [firmwareDirPath, driverDirPath].forEach((dirPath) => {
         fileUtils.isEmptyDir(dirPath) || compressionFilesInfo.push({
@@ -21,6 +30,8 @@ async function compressHardwareModuleFile(
     });
 
     await fileUtils.compress(compressionFilesInfo, zipFilePath);
+    await fileUtils.clearDirectory(firmwareDirPath);
+    await fileUtils.clearDirectory(driverDirPath);
 }
 
 function prepareExtractFileList(basePath: string, filenameList: string[]): IArchiverCompression[] {

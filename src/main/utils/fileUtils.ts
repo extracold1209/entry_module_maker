@@ -9,7 +9,7 @@ export interface IArchiverCompression {
 }
 
 export default new class {
-    public clearBuildDirectory(directoryPath: string) {
+    public clearDirectory(directoryPath: string) {
         return new Promise((resolve, reject) => {
             rimraf(directoryPath, (err) => {
                 if (err) {

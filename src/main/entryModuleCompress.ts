@@ -3,7 +3,6 @@ import rollupResolve from '@rollup/plugin-node-resolve';
 import path from 'path';
 import { rollup } from 'rollup';
 import { buildFilePath, unpackedBuildPath } from './constants';
-import extractFirmware from "./core/hardware/extractFirmware";
 import compressHardwareModuleFile from './core/hardware/compressHardwareModule';
 import moduleReplacerPlugin from './entryModuleReplacer';
 import FileUtils from './utils/fileUtils';
@@ -15,12 +14,9 @@ export default async(compressionInfo: EntryModuleCompressionInfo) => {
         const hardwareJSONPath = path.join(hardwareModulePath, `${moduleName}.json`);
         const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareJSONPath);
 
-        await FileUtils.clearBuildDirectory(buildFilePath);
+        await FileUtils.clearDirectory(buildFilePath);
         await rollupBlockFile(blockFilePath);
         await copyImageFile(hardwareModulePath, hardwareInfo);
-        if (hardwareInfo.firmware) {
-            await extractFirmware(hardwareModulePath, hardwareInfo.firmware);
-        }
 
         await forceModifyHardwareModule(hardwareJSONPath, hardwareInfo, compressionInfo);
         await compressHardwareModuleFile(compressionInfo, hardwareInfo);
