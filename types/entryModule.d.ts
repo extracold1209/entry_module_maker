@@ -35,4 +35,10 @@ declare interface HardwareConfig {
     platform: any;
     moduleName?: string; // legacy 에는 없을 수 있음
     version?: string; // legacy 에는 없을 수 있음
+    firmware?: HardwareFirmware
 }
+
+declare type HardwareFirmware = string |
+    { name: string; translate: string; } |
+    { name: string; translate: string; }[] |
+    { type: "copy"; name: string; afterDelay: number; }[]

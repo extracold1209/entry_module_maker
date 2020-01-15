@@ -2,12 +2,9 @@ import rollupCommonjs from '@rollup/plugin-commonjs';
 import rollupResolve from '@rollup/plugin-node-resolve';
 import path from 'path';
 import { rollup } from 'rollup';
+import { buildFilePath, unpackedBuildPath } from './constants';
 import moduleReplacerPlugin from './entryModuleReplacer';
 import FileUtils from './utils/fileUtils';
-
-const getBuildFilePath = () => path.join(global.__rootDir, 'build');
-const getUnpackedBuildPath = () => path.join(getBuildFilePath(), 'unpacked');
-
 
 export default async(compressionInfo: EntryModuleCompressionInfo) => {
     const { hardwareModulePath, moduleName, blockFilePath } = compressionInfo;
@@ -16,11 +13,13 @@ export default async(compressionInfo: EntryModuleCompressionInfo) => {
         const hardwareJSONPath = path.join(hardwareModulePath, `${moduleName}.json`);
         const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareJSONPath);
 
-        await FileUtils.clearBuildDirectory(getBuildFilePath());
+        await FileUtils.clearBuildDirectory(buildFilePath);
         await rollupBlockFile(blockFilePath);
         await copyImageFile(hardwareModulePath, hardwareInfo);
+
         await forceModifyHardwareModule(hardwareJSONPath, hardwareInfo, compressionInfo);
         await compressHardwareModuleFile(compressionInfo, hardwareInfo);
+
         await writeMetadata(compressionInfo, hardwareInfo);
         await compressModule(moduleName);
     } catch (e) {
@@ -41,7 +40,7 @@ async function rollupBlockFile(blockFilePath: string): Promise<void> {
     });
     await bundle.write({
         format: 'iife',
-        file: path.join(getUnpackedBuildPath(), blockFileName),
+        file: path.join(unpackedBuildPath, blockFileName),
     });
 }
 
@@ -61,14 +60,14 @@ async function writeMetadata(compressionInfo: EntryModuleCompressionInfo, hardwa
         properties: { platform, category, id },
     };
 
-    await FileUtils.writeJSONFile(path.join(getUnpackedBuildPath(), 'metadata.json'), metadata);
+    await FileUtils.writeJSONFile(path.join(unpackedBuildPath, 'metadata.json'), metadata);
 }
 
 async function copyImageFile(hardwareModulePath: string, hardwareInfo: HardwareConfig): Promise<void> {
     const { icon } = hardwareInfo;
     await FileUtils.copyFile(
         path.join(hardwareModulePath, icon),
-        path.join(getUnpackedBuildPath(), icon),
+        path.join(unpackedBuildPath, icon),
     );
 }
 
@@ -78,7 +77,7 @@ async function compressHardwareModuleFile(
     const { moduleName, hardwareModulePath } = compressionInfo;
     const { icon, module } = hardwareInfo;
 
-    const zipFilePath = path.join(getUnpackedBuildPath(), `${moduleName}.zip`);
+    const zipFilePath = path.join(unpackedBuildPath, `${moduleName}.zip`);
     const hardwareModuleFilePathList = [`${moduleName}.json`, icon, module].map((file) => {
         const filePath = path.join(hardwareModulePath, file);
 
@@ -93,10 +92,6 @@ async function compressHardwareModuleFile(
     });
 
     await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
-}
-
-async function validateAndChangeHardwareFiles(icon: string, module: string) {
-
 }
 
 /**
@@ -119,10 +114,10 @@ async function forceModifyHardwareModule(
 }
 
 async function compressModule(moduleName: string): Promise<void> {
-    const moduleFilePath = path.join(getBuildFilePath(), `${moduleName}.zip`);
+    const moduleFilePath = path.join(buildFilePath, `${moduleName}.zip`);
     const archiverInformation = {
         type: 'directory',
-        filePath: getUnpackedBuildPath(),
+        filePath: unpackedBuildPath,
     };
 
     await FileUtils.compress([archiverInformation], moduleFilePath);

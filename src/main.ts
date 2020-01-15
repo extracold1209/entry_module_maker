@@ -2,7 +2,6 @@ import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import entryModuleCompress from './main/entryModuleCompress';
 
-global.__rootDir = path.resolve('src', '..');
 let mainWindow: Electron.BrowserWindow | null;
 
 function createWindow() {
