@@ -1,5 +1,5 @@
 import Archiver from 'archiver';
-import fs, { PathLike } from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import rimraf from 'rimraf';
 
@@ -26,7 +26,7 @@ export default class {
      * @param filePath
      * @return Promise<boolean>
      */
-    public static isExist(filePath: PathLike) {
+    public static isExist(filePath: string) {
         return new Promise((resolve) => {
             fs.access(filePath, fs.constants.F_OK, (err) => {
                 if (err) {
@@ -39,19 +39,12 @@ export default class {
         });
     }
 
-    public static copyFile(src: PathLike, dest: PathLike) {
-        return new Promise((resolve, reject) => {
-            fs.copyFile(src, dest, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve();
-                }
-            });
-        });
+    public static async copyFile(src: string, dest: string) {
+        fs.ensureDirSync(path.dirname(dest));
+        await fs.copyFile(src, dest);
     }
 
-    public static writeJSONFile(src: PathLike, content: any) {
+    public static writeJSONFile(src: string, content: any) {
         return new Promise((resolve, reject) => {
             try {
                 const stringJSON = JSON.stringify(content, null, 4);
@@ -69,7 +62,7 @@ export default class {
         });
     }
 
-    public static readJSONFile<T>(src: PathLike): Promise<T> {
+    public static readJSONFile<T>(src: string): Promise<T> {
         return new Promise((resolve, reject) => {
             if (!src.toString().match(/\.json$/)) {
                 reject(`${src} file not json`);
@@ -86,7 +79,7 @@ export default class {
         });
     }
 
-    public static compress(files: IArchiverCompression[], destFilePath: PathLike) {
+    public static compress(files: IArchiverCompression[], destFilePath: string) {
         return new Promise((resolve, reject) => {
             const fsWriteStream = fs.createWriteStream(destFilePath);
             const archiver = Archiver('tar');
