@@ -3,13 +3,13 @@ import fs from 'fs-extra';
 import path from 'path';
 import rimraf from 'rimraf';
 
-interface IArchiverCompression {
+export interface IArchiverCompression {
     type: string;
     filePath: string;
 }
 
-export default class {
-    public static clearBuildDirectory(directoryPath: string) {
+export default new class {
+    public clearBuildDirectory(directoryPath: string) {
         return new Promise((resolve, reject) => {
             rimraf(directoryPath, (err) => {
                 if (err) {
@@ -21,12 +21,21 @@ export default class {
         });
     }
 
+    public isEmptyDir(dirPath: string) {
+        try {
+            const stat = fs.statSync(dirPath);
+            return stat.size === 0;
+        } catch (e) {
+            return false;
+        }
+    }
+
     /**
      * 해당 파일이 존재하는지 확인한다.
      * @param filePath
      * @return Promise<boolean>
      */
-    public static isExist(filePath: string) {
+    public isExist(filePath: string) {
         return new Promise((resolve) => {
             fs.access(filePath, fs.constants.F_OK, (err) => {
                 if (err) {
@@ -39,12 +48,12 @@ export default class {
         });
     }
 
-    public static async copyFile(src: string, dest: string) {
+    public async copyFile(src: string, dest: string) {
         fs.ensureDirSync(path.dirname(dest));
         await fs.copyFile(src, dest);
     }
 
-    public static writeJSONFile(src: string, content: any) {
+    public writeJSONFile(src: string, content: any) {
         return new Promise((resolve, reject) => {
             try {
                 const stringJSON = JSON.stringify(content, null, 4);
@@ -58,13 +67,13 @@ export default class {
             } catch (e) {
                 reject(e);
             }
-
         });
     }
 
-    public static readJSONFile<T>(src: string): Promise<T> {
+    public readJSONFile<T>(src: string): Promise<T> {
         return new Promise((resolve, reject) => {
-            if (!src.toString().match(/\.json$/)) {
+            if (!src.toString()
+                .match(/\.json$/)) {
                 reject(`${src} file not json`);
                 return;
             }
@@ -79,7 +88,7 @@ export default class {
         });
     }
 
-    public static compress(files: IArchiverCompression[], destFilePath: string) {
+    public compress(files: IArchiverCompression[], destFilePath: string) {
         return new Promise((resolve, reject) => {
             const fsWriteStream = fs.createWriteStream(destFilePath);
             const archiver = Archiver('tar');
@@ -96,11 +105,11 @@ export default class {
                         archiver.file(filePath, { name: path.basename(filePath) });
                         break;
                     case 'directory':
-                        archiver.directory(filePath, false);
+                        archiver.directory(filePath, path.basename(filePath));
                         break;
                 }
             });
             archiver.finalize();
         });
     }
-}
+}();

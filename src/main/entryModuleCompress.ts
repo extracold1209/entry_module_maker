@@ -4,6 +4,7 @@ import path from 'path';
 import { rollup } from 'rollup';
 import { buildFilePath, unpackedBuildPath } from './constants';
 import extractFirmware from "./core/hardware/extractFirmware";
+import compressHardwareModuleFile from './core/hardware/compressHardwareModule';
 import moduleReplacerPlugin from './entryModuleReplacer';
 import FileUtils from './utils/fileUtils';
 
@@ -73,29 +74,6 @@ async function copyImageFile(hardwareModulePath: string, hardwareInfo: HardwareC
         path.join(hardwareModulePath, icon),
         path.join(unpackedBuildPath, icon),
     );
-}
-
-async function compressHardwareModuleFile(
-    compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig,
-): Promise<void> {
-    const { moduleName, hardwareModulePath } = compressionInfo;
-    const { icon, module } = hardwareInfo;
-
-    const zipFilePath = path.join(unpackedBuildPath, `${moduleName}.zip`);
-    const hardwareModuleFilePathList = [`${moduleName}.json`, icon, module].map((file) => {
-        const filePath = path.join(hardwareModulePath, file);
-
-        if (!FileUtils.isExist(filePath)) {
-            throw new Error(`${filePath} not found`);
-        }
-
-        return {
-            type: 'file',
-            filePath: path.join(hardwareModulePath, file),
-        };
-    });
-
-    await FileUtils.compress(hardwareModuleFilePathList, zipFilePath);
 }
 
 /**
