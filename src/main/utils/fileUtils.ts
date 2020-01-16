@@ -104,6 +104,9 @@ export default new class {
                     case 'file':
                         archiver.file(filePath, { name: path.basename(filePath) });
                         break;
+                    case 'root':
+                        archiver.directory(filePath, false);
+                        break;
                     case 'directory':
                         archiver.directory(filePath, path.basename(filePath));
                         break;

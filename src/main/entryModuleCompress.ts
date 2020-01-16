@@ -94,7 +94,7 @@ async function forceModifyHardwareModule(
 async function compressModule(moduleName: string): Promise<void> {
     const moduleFilePath = path.join(buildFilePath, `${moduleName}.zip`);
     const archiverInformation = {
-        type: 'directory',
+        type: 'root',
         filePath: unpackedBuildPath,
     };
 
