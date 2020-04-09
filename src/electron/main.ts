@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import entryModuleCompress from './main/entryModuleCompress';
+import entryModuleCompress from '../main/entryModuleCompress';
 
 let mainWindow: Electron.BrowserWindow | null;
 
@@ -14,7 +14,7 @@ function createWindow() {
         },
     });
 
-    mainWindow.loadFile(path.join(__dirname, '..', 'statics', 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, '..', '..', 'statics', 'index.html'));
     mainWindow.webContents.openDevTools();
     mainWindow.on('closed', () => {
         mainWindow = null;
