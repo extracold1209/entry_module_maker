@@ -2,7 +2,7 @@ import path from 'path';
 import { unpackedBuildPath } from '../../constants';
 import fileUtils from "../../utils/fileUtils";
 
-async function extractFirmware(hardwareModulePath: string, firmwareInfo: HardwareFirmware): Promise<string[]> {
+async function extractFirmware(hardwareModulePath: string, firmwareInfo: HardwareFirmware): Promise<void> {
     const srcFirmwareDirPath = path.join(hardwareModulePath, '..', 'firmwares');
     const destFirmwareDirPath = path.join(unpackedBuildPath, 'firmwares');
     const firmwareNames: string[] = [];
@@ -24,8 +24,6 @@ async function extractFirmware(hardwareModulePath: string, firmwareInfo: Hardwar
         path.join(srcFirmwareDirPath, firmwareName),
         path.join(destFirmwareDirPath, firmwareName),
     )));
-
-    return firmwareNames;
 }
 
 export default extractFirmware;

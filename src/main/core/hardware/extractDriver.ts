@@ -2,7 +2,7 @@ import path from 'path';
 import { unpackedBuildPath } from '../../constants';
 import fileUtils from "../../utils/fileUtils";
 
-async function extractDriver(hardwareModulePath: string, driverInfo: HardwareDriver): Promise<string[]> {
+async function extractDriver(hardwareModulePath: string, driverInfo: HardwareDriver): Promise<void> {
     const srcDriverDirPath = path.join(hardwareModulePath, '..', 'drivers');
     const destDriverDirPath = path.join(unpackedBuildPath, 'drivers');
     const driverNames: string[] = [];
@@ -31,8 +31,6 @@ async function extractDriver(hardwareModulePath: string, driverInfo: HardwareDri
         path.join(srcDriverDirPath, firmwareName),
         path.join(destDriverDirPath, firmwareName),
     )));
-
-    return driverNames;
 }
 
 export default extractDriver;

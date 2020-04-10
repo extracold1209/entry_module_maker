@@ -6,9 +6,8 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "lint": "tslint -c tslint.json -p tsconfig.json",
-    "start": "electron .",
-    "debug": "electron . --inspect",
+    "start": "npm run build && electron .",
+    "debug": "npm run build && electron . --inspect",
     "test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register ./**/*.spec.ts"
   },
   "devDependencies": {
