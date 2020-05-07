@@ -21,6 +21,8 @@ function createWindow() {
     });
 }
 
+app.allowRendererProcessReuse = true;
+
 app.on('ready', createWindow);
 
 // Quit when all windows are closed.

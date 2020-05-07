@@ -7,21 +7,23 @@ import copyFirmware from "./extractFirmware";
 async function compressHardwareModuleFile(
     compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig,
 ): Promise<void> {
-    const { moduleName, hardwareModulePath } = compressionInfo;
+    const { moduleName, hardwareConfigPath } = compressionInfo;
     const { icon, module } = hardwareInfo;
+
+    const hardwareModuleBasePath = path.dirname(hardwareConfigPath);
 
     const zipFilePath = path.join(unpackedBuildPath, `${moduleName}.zip`);
     const firmwareDirPath = path.join(unpackedBuildPath, 'firmwares');
     const driverDirPath = path.join(unpackedBuildPath, 'drivers');
 
     if (hardwareInfo.firmware) {
-        await copyFirmware(hardwareModulePath, hardwareInfo.firmware);
+        await copyFirmware(hardwareConfigPath, hardwareInfo.firmware);
     }
     if (hardwareInfo.driver) {
-        await copyDriver(hardwareModulePath, hardwareInfo.driver);
+        await copyDriver(hardwareConfigPath, hardwareInfo.driver);
     }
 
-    const compressionFilesInfo = prepareExtractFileList(hardwareModulePath, [`${moduleName}.json`, icon, module]);
+    const compressionFilesInfo = prepareExtractFileList(hardwareModuleBasePath, [`${moduleName}.json`, icon, module]);
     [firmwareDirPath, driverDirPath].forEach((dirPath) => {
         !fileUtils.isEmptyDir(dirPath) && compressionFilesInfo.push({
             type: 'directory',

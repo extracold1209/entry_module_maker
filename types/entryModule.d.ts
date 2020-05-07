@@ -1,7 +1,7 @@
 declare interface EntryModuleCompressionInfo {
     moduleName: string,
     version: string,
-    hardwareModulePath: string;
+    hardwareConfigPath: string;
     blockFilePath: string,
 }
 
