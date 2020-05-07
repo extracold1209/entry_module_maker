@@ -26,7 +26,7 @@
                     <div class="ui label">
                         version
                     </div>
-                    <input id="version" class="savable" type="text" placeholder="1.00">
+                    <input id="version" class="savable" type="text" placeholder="1.0.0">
                 </div>
                 <div class="ui fluid labeled icon input">
                     <div class="ui label">blockFile</div>
@@ -35,10 +35,10 @@
                     <input id="blockFileSelector" style="display: none;" type="file" hidden>
                 </div>
                 <div class="ui fluid labeled icon input">
-                    <div class="ui label">hardwareModulePath</div>
-                    <input id="hardwareModulePath" class="savable" type="text" placeholder="/entry-hw/app/modules">
+                    <div class="ui label">hardwareConfigPath</div>
+                    <input id="hardwareConfigPath" class="savable" type="text" placeholder="/entry-hw/app/modules/arduino.json">
                     <i id="hardwareModulePathIcon" class="inverted circular search link icon"></i>
-                    <input id="hardwareModulePathSelector" style="display: none;" type="file" directory webkitdirectory>
+                    <input id="hardwareModulePathSelector" style="display: none;" type="file" hidden>
                 </div>
             </div>
         </div>
@@ -59,7 +59,7 @@
     let localStorageData = {};
     $(document).ready(() => {
         initFileSelection('blockFile', 'blockFileIcon', 'blockFileSelector');
-        initFileSelection('hardwareModulePath', 'hardwareModulePathIcon', 'hardwareModulePathSelector');
+        initFileSelection('hardwareConfigPath', 'hardwareModulePathIcon', 'hardwareModulePathSelector');
         $('.savable').on('keydown change', dataSaveFunction);
         $('#submit').on('click', onSubmitData);
         $('#open-folder').on('click', openBuildDirectory);
@@ -102,7 +102,7 @@
     function onSubmitData() {
         const moduleName = $('#moduleName').val();
         const version = $('#version').val();
-        const hardwareModulePath = $('#hardwareModulePath').val();
+        const hardwareConfigPath = $('#hardwareConfigPath').val();
         const blockFilePath = $('#blockFile').val();
 
         if (/^\d+\.\d+\.\d+$/.test(version) === false) {
@@ -113,11 +113,19 @@
             alert('moduleName is required');
             return false;
         }
+        if (!blockFilePath.endsWith('.js')) {
+            alert('blocFile must be js file');
+            return false;
+        }
+        if (!hardwareConfigPath.endsWith('.json')) {
+            alert('hardwareModulePath must be json file');
+            return false;
+        }
 
         compressModule({
             moduleName,
             version,
-            hardwareModulePath,
+            hardwareConfigPath,
             blockFilePath,
         })
             .then(() => {

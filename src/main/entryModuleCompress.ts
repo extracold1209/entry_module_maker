@@ -8,17 +8,17 @@ import moduleReplacerPlugin from './entryModuleReplacer';
 import FileUtils from './utils/fileUtils';
 
 export default async(compressionInfo: EntryModuleCompressionInfo) => {
-    const { hardwareModulePath, moduleName, blockFilePath } = compressionInfo;
+    const { hardwareConfigPath, moduleName, blockFilePath } = compressionInfo;
 
     try {
-        const hardwareJSONPath = path.join(hardwareModulePath, `${moduleName}.json`);
-        const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareJSONPath);
+        const hardwareModulePath = path.dirname(hardwareConfigPath);
+        const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareConfigPath);
 
         await FileUtils.clearDirectory(buildFilePath);
         await rollupBlockFile(blockFilePath);
         await copyImageFile(hardwareModulePath, hardwareInfo);
 
-        await forceModifyHardwareModule(hardwareJSONPath, hardwareInfo, compressionInfo);
+        await forceModifyHardwareModule(hardwareConfigPath, hardwareInfo, compressionInfo);
         await compressHardwareModuleFile(compressionInfo, hardwareInfo);
 
         await writeMetadata(compressionInfo, hardwareInfo);
