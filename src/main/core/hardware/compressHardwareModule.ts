@@ -23,7 +23,7 @@ async function compressHardwareModuleFile(
 
     const compressionFilesInfo = prepareExtractFileList(hardwareModulePath, [`${moduleName}.json`, icon, module]);
     [firmwareDirPath, driverDirPath].forEach((dirPath) => {
-        fileUtils.isEmptyDir(dirPath) || compressionFilesInfo.push({
+        !fileUtils.isEmptyDir(dirPath) && compressionFilesInfo.push({
             type: 'directory',
             filePath: dirPath,
         });

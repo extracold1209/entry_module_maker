@@ -26,7 +26,7 @@ export default new class {
             const stat = fs.statSync(dirPath);
             return stat.size === 0;
         } catch (e) {
-            return false;
+            return true;
         }
     }
 
@@ -108,7 +108,7 @@ export default new class {
                         archiver.directory(filePath, false);
                         break;
                     case 'directory':
-                        archiver.directory(filePath, path.basename(filePath));
+                        archiver.directory(filePath, false);
                         break;
                 }
             });
