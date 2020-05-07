@@ -39,7 +39,7 @@ const cliCacheFilePath = path.join(__dirname, '.cache');
             type: 'input',
             name: 'hardwareConfigPath',
             default: hardwareConfigPath,
-            message: 'input entry-hw module path',
+            message: 'input entry-hw device\'s module config file path',
         },
 
     ]);
