@@ -108,7 +108,8 @@ export default new class {
                         archiver.directory(filePath, false);
                         break;
                     case 'directory':
-                        archiver.directory(filePath, false);
+                        console.log(path.basename(filePath));
+                        archiver.directory(filePath, path.basename(filePath));
                         break;
                 }
             });
