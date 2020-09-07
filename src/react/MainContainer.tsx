@@ -29,7 +29,6 @@ const MainContainer: React.FC = () => {
             />
             <Divider className={classes.divider}/>
             <ContentsContainer/>
-            <Divider className={classes.divider}/>
         </Container>
     );
 }

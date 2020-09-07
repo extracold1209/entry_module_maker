@@ -1,6 +1,7 @@
 import {app, BrowserWindow, ipcMain} from 'electron';
 import path from 'path';
 import entryModuleCompress from '../main/entryModuleCompress';
+import fileUtils from "../main/utils/fileUtils";
 
 let mainWindow: Electron.BrowserWindow | null;
 
@@ -10,7 +11,7 @@ function createWindow() {
         width: 800,
         webPreferences: {
             nodeIntegration: false,
-            preload: path.join(__dirname, 'rendererProcessor'),
+            preload: path.join(__dirname, 'preload'),
         },
     });
 
@@ -38,6 +39,23 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.handle('compress', async(event: Electron.Event, data: EntryModuleCompressionInfo) => {
+ipcMain.handle('compress', async (event: Electron.Event, data: EntryModuleCompressionInfo) => {
     return await entryModuleCompress(data);
 });
+
+ipcMain.handle('getJsonFileInfo', async (event, filePath: string) => {
+    try {
+        return await fileUtils.readJSONFile(filePath)
+    } catch (e) {
+        console.warn(e);
+    }
+});
+
+ipcMain.handle('getBlockFileInfo', async (event, filePath: string) => {
+    try {
+        return await fileUtils.readJsFile(filePath, ['id', 'name']);
+    } catch (e) {
+        console.warn(e);
+    }
+});
+
