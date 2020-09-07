@@ -2,6 +2,7 @@ import Archiver from 'archiver';
 import fs from 'fs-extra';
 import path from 'path';
 import rimraf from 'rimraf';
+import {cloneDeep, pick} from 'lodash';
 
 export interface IArchiverCompression {
     type: string;
@@ -86,6 +87,21 @@ export default new class {
                 }
             });
         });
+    }
+
+    public async readJsFile(filePath: string, properties?: string[]): Promise<any> {
+        // @ts-ignore
+        global.Entry = {};
+        const file = cloneDeep(await import(filePath));
+
+        // @ts-ignore
+        delete global.Entry;
+
+        if (properties && Array.isArray(properties)) {
+            return pick(file, properties);
+        } else {
+            return file;
+        }
     }
 
     public compress(files: IArchiverCompression[], destFilePath: string) {
