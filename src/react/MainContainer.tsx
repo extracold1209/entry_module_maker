@@ -8,7 +8,7 @@ import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        mb: {
+        divider: {
             marginBottom: theme.spacing(1),
         },
     }),
@@ -27,7 +27,7 @@ const MainContainer: React.FC = () => {
                 name='module-type'
                 defaultValue={'하드웨어'}
             />
-            <Divider className={classes.mb}/>
+            <Divider className={classes.divider}/>
             <ContentsContainer/>
         </Container>
     );

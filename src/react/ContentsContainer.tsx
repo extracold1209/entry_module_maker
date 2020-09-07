@@ -4,6 +4,7 @@ import FileInput from "./FileInput";
 import Divider from "@material-ui/core/Divider";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
+import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -12,11 +13,15 @@ const useStyles = makeStyles((theme: Theme) =>
                 marginBottom: theme.spacing(2),
             },
         },
-        mb: {
+        divider: {
             marginBottom: theme.spacing(1),
+            marginTop: theme.spacing(1),
         },
         pr: {
             paddingRight: theme.spacing(1),
+        },
+        mr: {
+            marginRight: theme.spacing(1),
         },
         errorSpan: {
             color: 'red',
@@ -28,6 +33,8 @@ const useStyles = makeStyles((theme: Theme) =>
     }),
 );
 
+let blockFilePath = '';
+let hardwareConfigPath = '';
 const ContentsContainer: React.FC = () => {
     const classes = useStyles();
     const [hardwareInfo, setHardwareInfo] = useState<any>();
@@ -42,6 +49,7 @@ const ContentsContainer: React.FC = () => {
                 if (path.endsWith('json')) {
                     const fileInfo = await global.getHardwareJsonInfo(path);
                     setHardwareInfo(fileInfo);
+                    hardwareConfigPath = path;
                     setModuleName(name.replace('.json', ''));
                     if (fileInfo.version) {
                         setVersion(fileInfo.version as string);
@@ -56,6 +64,7 @@ const ContentsContainer: React.FC = () => {
             } else if (type === 'block') {
                 if (path.endsWith('js')) {
                     const fileInfo = await global.getBlockJsInfo(path);
+                    blockFilePath = path;
                     setBlockInfo(fileInfo);
                     setErrorText('');
                 } else {
@@ -74,6 +83,22 @@ const ContentsContainer: React.FC = () => {
             setVersion(e.target.value);
         }
     }, []);
+    const handleOpenDirectory = useCallback(() => {
+        global.openBuildDirectory();
+    }, []);
+    const handleCreateClicked = useCallback(async () => {
+        try {
+            await global.compressModule({
+                hardwareConfigPath,
+                blockFilePath,
+                moduleName,
+                version
+            });
+            alert('Compress Success');
+        } catch (e) {
+            alert('Compress Failed');
+        }
+    }, [moduleName, version]);
 
     return (
         <div className={classes.root}>
@@ -95,8 +120,17 @@ const ContentsContainer: React.FC = () => {
                                className={classes.textInput}/>
                 </Grid>
             </Grid>
-            <Divider className={classes.mb}/>
             <span className={classes.errorSpan}>{errorText}</span>
+            <Divider className={classes.divider}/>
+            <Grid container justify={'flex-end'}>
+                <Grid item>
+                    <Button variant="contained" color="primary" className={classes.mr}
+                            onClick={handleCreateClicked}>Create</Button>
+                </Grid>
+                <Grid item>
+                    <Button variant="contained" color="secondary" onClick={handleOpenDirectory}>Open Directory</Button>
+                </Grid>
+            </Grid>
             <p>{hardwareInfo && JSON.stringify(hardwareInfo)}</p>
             <p>{blockInfo && JSON.stringify(blockInfo)}</p>
         </div>
