@@ -1,4 +1,5 @@
 import React, {ChangeEvent, useCallback, useState} from 'react';
+import {isEmpty} from 'lodash';
 import {createStyles, makeStyles, Theme} from '@material-ui/core/styles';
 import FileInput from "./FileInput";
 import Divider from "@material-ui/core/Divider";
@@ -88,13 +89,18 @@ const ContentsContainer: React.FC = () => {
     }, []);
     const handleCreateClicked = useCallback(async () => {
         try {
-            await global.compressModule({
-                hardwareConfigPath,
-                blockFilePath,
-                moduleName,
-                version
-            });
-            alert('Compress Success');
+            // 어떤것도 empty 가 아닌 경우
+            if (!(isEmpty(hardwareConfigPath) || isEmpty(blockFilePath) || isEmpty(moduleName) || isEmpty(version))) {
+                await global.compressModule({
+                    hardwareConfigPath,
+                    blockFilePath,
+                    moduleName,
+                    version
+                });
+                alert('Compress Success');
+            } else {
+                alert('Parameter is insufficient');
+            }
         } catch (e) {
             alert('Compress Failed');
         }
