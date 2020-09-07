@@ -1,33 +1,11 @@
 import rollupCommonjs from '@rollup/plugin-commonjs';
 import rollupResolve from '@rollup/plugin-node-resolve';
 import path from 'path';
-import { rollup } from 'rollup';
-import { buildFilePath, unpackedBuildPath } from './constants';
+import {rollup} from 'rollup';
+import {buildFilePath, unpackedBuildPath} from './constants';
 import compressHardwareModuleFile from './core/hardware/compressHardwareModule';
 import moduleReplacerPlugin from './entryModuleReplacer';
 import FileUtils from './utils/fileUtils';
-
-export default async(compressionInfo: EntryModuleCompressionInfo) => {
-    const { hardwareConfigPath, moduleName, blockFilePath } = compressionInfo;
-
-    try {
-        const hardwareModulePath = path.dirname(hardwareConfigPath);
-        const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareConfigPath);
-
-        await FileUtils.clearDirectory(buildFilePath);
-        await rollupBlockFile(blockFilePath);
-        await copyImageFile(hardwareModulePath, hardwareInfo);
-
-        await forceModifyHardwareModule(hardwareConfigPath, hardwareInfo, compressionInfo);
-        await compressHardwareModuleFile(compressionInfo, hardwareInfo);
-
-        await writeMetadata(compressionInfo, hardwareInfo);
-        await compressModule(moduleName);
-    } catch (e) {
-        console.error(e);
-        throw e;
-    }
-};
 
 async function rollupBlockFile(blockFilePath: string): Promise<void> {
     const blockFileName = path.basename(blockFilePath);
@@ -100,3 +78,25 @@ async function compressModule(moduleName: string): Promise<void> {
 
     await FileUtils.compress([archiverInformation], moduleFilePath);
 }
+
+export default async (compressionInfo: EntryModuleCompressionInfo) => {
+    const {hardwareConfigPath, moduleName, blockFilePath} = compressionInfo;
+
+    try {
+        const hardwareModulePath = path.dirname(hardwareConfigPath);
+        const hardwareInfo = await FileUtils.readJSONFile<HardwareConfig>(hardwareConfigPath);
+
+        await FileUtils.clearDirectory(buildFilePath);
+        await rollupBlockFile(blockFilePath);
+        await copyImageFile(hardwareModulePath, hardwareInfo);
+
+        await forceModifyHardwareModule(hardwareConfigPath, hardwareInfo, compressionInfo);
+        await compressHardwareModuleFile(compressionInfo, hardwareInfo);
+
+        await writeMetadata(compressionInfo, hardwareInfo);
+        await compressModule(moduleName);
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
+};
