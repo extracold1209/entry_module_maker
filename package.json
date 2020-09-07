@@ -12,6 +12,7 @@
     "test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register ./**/*.spec.ts"
   },
   "devDependencies": {
+    "@material-ui/core": "^4.11.0",
     "@rollup/plugin-commonjs": "^11.0.1",
     "@rollup/plugin-node-resolve": "^7.0.0",
     "@types/archiver": "^3.1.0",
