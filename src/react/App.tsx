@@ -1,11 +1,10 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import ContainedButtons from './Foo';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import Divider from '@material-ui/core/Divider';
 import RadioGroup from "./IconTextField";
-
+import FileInput from "./FileInput";
 
 ReactDom.render(
     <Container>
@@ -19,7 +18,12 @@ ReactDom.render(
             defaultValue={'하드웨어'}
         />
         <Divider/>
-        <ContainedButtons/>
+        <FileInput
+            value={'HardwareJson'}
+        />
+        <FileInput
+            value={'BlockFile'}
+        />
     </Container>,
     document.getElementById('__root__'),
 );

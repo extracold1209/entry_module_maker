@@ -2,6 +2,7 @@ const path = require('path');
 
 module.exports = {
     mode: process.env.NODE_ENV || 'development',
+    devtool: 'eval-cheap-source-map',
     target: 'web',
     entry: path.join(__dirname, 'src', 'react', 'App.tsx'),
     output: {
