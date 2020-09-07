@@ -39,7 +39,7 @@ const ContentsContainer: React.FC = () => {
     const classes = useStyles();
     const [hardwareInfo, setHardwareInfo] = useState<any>();
     const [blockInfo, setBlockInfo] = useState<any>();
-    const [errorText, setErrorText] = useState('ㅋㅋ루삥뽕');
+    const [errorText, setErrorText] = useState('');
     const [moduleName, setModuleName] = useState('');
     const [version, setVersion] = useState('');
 
