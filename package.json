@@ -9,7 +9,8 @@
     "start": "npm run build && electron .",
     "cli": "ts-node --files ./src/cli",
     "debug": "npm run build && electron . --inspect",
-    "test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register ./**/*.spec.ts"
+    "test": "cross-env TS_NODE_FILES=true mocha --require ts-node/register ./**/*.spec.ts",
+    "webpack:watch": "cross-env NODE_ENV=development webpack -w"
   },
   "devDependencies": {
     "@material-ui/core": "^4.11.0",
