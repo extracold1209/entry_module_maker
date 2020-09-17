@@ -1,8 +1,8 @@
 declare interface EntryModuleCompressionInfo {
-    moduleName: string,
-    version: string,
-    hardwareModulePath: string;
-    blockFilePath: string,
+    moduleName: string;
+    version: string;
+    hardwareConfigPath: string;
+    blockFilePath: string;
 }
 
 declare interface EntryModuleMetadata {
@@ -13,17 +13,17 @@ declare interface EntryModuleMetadata {
         image: string;
         block: string;
         [key: string]: string;
-    }
+    };
     properties?: {
-        [key: string]: string
-    }
+        [key: string]: string;
+    };
     type: 'hardware';
 }
 
 declare interface LanguageTemplateObject {
-    ko?: string,
-    en?: string,
-    jp?: string,
+    ko?: string;
+    en?: string;
+    jp?: string;
 }
 
 declare interface HardwareConfig {
@@ -40,9 +40,9 @@ declare interface HardwareConfig {
 }
 
 declare type HardwareFirmware = string |
-    { name: string; translate: string; } |
-    { name: string; translate: string; }[] |
-    { type: "copy"; name: string; afterDelay: number; }[]
+    { name: string; translate: string } |
+    { name: string; translate: string }[] |
+    { type: "copy"; name: string; afterDelay: number }[]
 
 type HardwareDriverElement = {
     'win32-ia32'?: string;

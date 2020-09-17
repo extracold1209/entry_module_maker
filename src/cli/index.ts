@@ -12,7 +12,7 @@ const cliCacheFilePath = path.join(__dirname, '.cache');
         const fileBuffer = fs.readFileSync(cliCacheFilePath);
         Object.assign(cachedData, JSON.parse(fileBuffer.toString()));
     }
-    const { moduleName, version, blockFilePath, hardwareModulePath } = cachedData;
+    const { moduleName, version, blockFilePath, hardwareConfigPath } = cachedData;
     const result = await inquirer.prompt([
         {
             type: 'input',
@@ -37,8 +37,8 @@ const cliCacheFilePath = path.join(__dirname, '.cache');
         },
         {
             type: 'input',
-            name: 'hardwareModulePath',
-            default: hardwareModulePath,
+            name: 'hardwareConfigPath',
+            default: hardwareConfigPath,
             message: 'input entry-hw module path',
         },
 

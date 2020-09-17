@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <title></title>
+</head>
+<body>
+<div id="__root__"></div>
+
+<!--<div class="ui container">-->
+<!--    <div class="ui vertically divided grid">-->
+<!--        <div class="row"></div>-->
+<!--        <div class="row">-->
+<!--            <div class="twelve column">-->
+<!--                <h1 class="ui header">Entry Hardware Module Maker</h1>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="twelve column segment">-->
+<!--                <div class="ui fluid labeled input" style="margin-bottom: 4px;">-->
+<!--                    <div class="ui label">-->
+<!--                        moduleName-->
+<!--                    </div>-->
+<!--                    <input id="moduleName" class="savable" type="text" placeholder="arduino">-->
+<!--                </div>-->
+<!--                <div class="ui fluid labeled input" style="margin-bottom: 4px;">-->
+<!--                    <div class="ui label">-->
+<!--                        version-->
+<!--                    </div>-->
+<!--                    <input id="version" class="savable" type="text" placeholder="1.0.0">-->
+<!--                </div>-->
+<!--                <div class="ui fluid labeled icon input" style="margin-bottom: 4px;">-->
+<!--                    <div class="ui label">blockFile</div>-->
+<!--                    <input id="blockFile" class="savable" type="text" placeholder="/entryjs/src/playground/blocks/hardware/block_arduino.js">-->
+<!--                    <i id="blockFileIcon" class="inverted circular search link icon"></i>-->
+<!--                    <input id="blockFileSelector" style="display: none;" type="file" hidden>-->
+<!--                </div>-->
+<!--                <div class="ui fluid labeled icon input">-->
+<!--                    <div class="ui label">hardwareConfigPath</div>-->
+<!--                    <input id="hardwareConfigPath" class="savable" type="text" placeholder="/entry-hw/app/modules/arduino.json">-->
+<!--                    <i id="hardwareModulePathIcon" class="inverted circular search link icon"></i>-->
+<!--                    <input id="hardwareModulePathSelector" style="display: none;" type="file" hidden>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="row">-->
+<!--            <div class="twelve column">-->
+<!--                <button id="submit" class="ui secondary button">-->
+<!--                    Okay-->
+<!--                </button>-->
+<!--                <button id="open-folder" class="ui secondary button">-->
+<!--                    Open Folder-->
+<!--                </button>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--</div>-->
+<script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+<!--<script>-->
+<!--    let localStorageData = {};-->
+<!--    $(document).ready(() => {-->
+<!--        initFileSelection('blockFile', 'blockFileIcon', 'blockFileSelector');-->
+<!--        initFileSelection('hardwareConfigPath', 'hardwareModulePathIcon', 'hardwareModulePathSelector');-->
+<!--        $('.savable').on('keydown change', dataSaveFunction);-->
+<!--        $('#submit').on('click', onSubmitData);-->
+<!--        $('#open-folder').on('click', openBuildDirectory);-->
+<!--        restoreDataFromLocalStorage();-->
+<!--    });-->
+
+<!--    function initFileSelection(inputElementId, selectIconId, selectorElementId) {-->
+<!--        $(`#${selectIconId}`).on('click', () => {-->
+<!--            $(`#${selectorElementId}`).click();-->
+<!--        });-->
+<!--        $(`#${selectorElementId}`).on('change', (e) => {-->
+<!--            const inputElem = $(`#${inputElementId}`);-->
+<!--            inputElem.val(e.currentTarget.files[0].path);-->
+<!--            inputElem.change();-->
+<!--        });-->
+<!--    }-->
+
+<!--    function restoreDataFromLocalStorage() {-->
+<!--        if (localStorage) {-->
+<!--            localStorageData = JSON.parse(localStorage.getItem('savedForm') || '{}');-->
+
+<!--            Object-->
+<!--                .entries(localStorageData)-->
+<!--                .forEach(([key, value]) => {-->
+<!--                $(`#${key}`).val(value);-->
+<!--            });-->
+<!--        }-->
+<!--    }-->
+
+<!--    function dataSaveFunction() {-->
+<!--        const $this = $(this);-->
+<!--        const value = $this.val();-->
+<!--        const id = $this[0].id;-->
+<!--        if (localStorage) {-->
+<!--            localStorageData[id] = value;-->
+<!--            localStorage.setItem('savedForm', JSON.stringify(localStorageData));-->
+<!--        }-->
+<!--    }-->
+
+<!--    function onSubmitData() {-->
+<!--        const moduleName = $('#moduleName').val();-->
+<!--        const version = $('#version').val();-->
+<!--        const hardwareConfigPath = $('#hardwareConfigPath').val();-->
+<!--        const blockFilePath = $('#blockFile').val();-->
+
+<!--        if (/^\d+\.\d+\.\d+$/.test(version) === false) {-->
+<!--            alert('version must be like semver');-->
+<!--            return false;-->
+<!--        }-->
+<!--        if (moduleName === '') {-->
+<!--            alert('moduleName is required');-->
+<!--            return false;-->
+<!--        }-->
+<!--        if (!blockFilePath.endsWith('.js')) {-->
+<!--            alert('blocFile must be js file');-->
+<!--            return false;-->
+<!--        }-->
+<!--        if (!hardwareConfigPath.endsWith('.json')) {-->
+<!--            alert('hardwareModulePath must be json file');-->
+<!--            return false;-->
+<!--        }-->
+
+<!--        compressModule({-->
+<!--            moduleName,-->
+<!--            version,-->
+<!--            hardwareConfigPath,-->
+<!--            blockFilePath,-->
+<!--        })-->
+<!--            .then(() => {-->
+<!--                alert('Module Compressed Successfully.');-->
+<!--            })-->
+<!--            .catch((e) => {-->
+<!--                alert('Module Compression Failed. Detail error wrote on devtool console.');-->
+<!--                console.error(e);-->
+<!--            })-->
+<!--    }-->
+<!--</script>-->
+<script src="./dist/dist.bundle.js"></script>
+</body>
+</html>

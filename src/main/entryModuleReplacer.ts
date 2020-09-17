@@ -11,12 +11,13 @@ import { Plugin } from 'rollup';
  */
 export default function EntryModuleReplacer(): Plugin {
     // module.exports = new Module(); -> new Module()
-    const searchRegex = /(module\.exports[ ]*=[ ]*)(.*);/;
+    const cjsRegex = /(module\.exports[ ]*=[ ]*)(.*);/;
+    const esRegex = /(export default )(.*);/;
     const targetValue = 'Entry.moduleManager.registerHardwareModule($2);';
     return {
         name: 'EntryModuleReplacer', // this name will show up in warnings and errors
         transform(contents) {
-            return contents.replace(searchRegex, targetValue);
+            return contents.replace(cjsRegex, targetValue).replace(esRegex, targetValue);
         },
     };
 }
