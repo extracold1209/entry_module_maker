@@ -4,7 +4,8 @@ import path from 'path';
 import {rollup} from 'rollup';
 import {buildFilePath, unpackedBuildPath} from './constants';
 import compressHardwareModuleFile from './core/hardware/compressHardwareModule';
-import moduleReplacerPlugin from './entryModuleReplacer';
+import {BlockModuleReplacer,hardwareModuleReplacer} from './entryModuleReplacer';
+
 import FileUtils from './utils/fileUtils';
 
 async function rollupBlockFile(blockFilePath: string): Promise<void> {
@@ -15,11 +16,35 @@ async function rollupBlockFile(blockFilePath: string): Promise<void> {
     const bundle = await rollup({
         input: blockFilePath,
         inlineDynamicImports: true,
-        plugins: [rollupResolve(), rollupCommonjs(), moduleReplacerPlugin()],
+        plugins: [rollupResolve({}), rollupCommonjs(), BlockModuleReplacer()],
+        external:[
+            'lodash/clamp',
+            'lodash/get'
+        ]
     });
     await bundle.write({
         format: 'iife',
         file: path.join(unpackedBuildPath, blockFileName),
+        globals: {
+            'lodash/clamp': '_.clamp',
+            'lodash/get': '_.get'
+          }
+    });
+}
+
+async function rollupModuleFile(moduleFilePath: string): Promise<void> {
+    const moduleFileName = path.basename(moduleFilePath);
+    if (!await FileUtils.isExist(moduleFilePath)) {
+        throw new Error(`${moduleFilePath} not exist`);
+    }
+    const bundle = await rollup({
+        input: moduleFilePath,
+        inlineDynamicImports: true,
+        plugins: [rollupResolve(), rollupCommonjs(), hardwareModuleReplacer()],
+    });
+    await bundle.write({
+        format: 'cjs',
+        file: moduleFilePath,
     });
 }
 
@@ -91,6 +116,9 @@ export default async (compressionInfo: EntryModuleCompressionInfo) => {
         await copyImageFile(hardwareModulePath, hardwareInfo);
 
         await forceModifyHardwareModule(hardwareConfigPath, hardwareInfo, compressionInfo);
+        // this replaces base_module
+        await rollupModuleFile(path.join(compressionInfo.hardwareConfigPath,"..",`${moduleName}.js`))
+        
         await compressHardwareModuleFile(compressionInfo, hardwareInfo);
 
         await writeMetadata(compressionInfo, hardwareInfo);
