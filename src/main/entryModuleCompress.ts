@@ -17,14 +17,13 @@ async function rollupBlockFile(blockFilePath: string): Promise<void> {
         input: blockFilePath,
         inlineDynamicImports: true,
         plugins: [rollupResolve(), rollupCommonjs(), BlockModuleReplacer()],
-        external: ['lodash/clamp', 'lodash/get'],
+        external: ['lodash'],
     });
     await bundle.write({
         format: 'iife',
         file: path.join(unpackedBuildPath, blockFileName),
         globals: {
-            'lodash/clamp': '_.clamp',
-            'lodash/get': '_.get',
+            lodash: '_',
         },
     });
 }
