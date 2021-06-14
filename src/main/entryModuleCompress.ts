@@ -5,6 +5,7 @@ import { rollup } from 'rollup';
 import { buildFilePath, unpackedBuildPath } from './constants';
 import compressHardwareModuleFile from './core/hardware/compressHardwareModule';
 import { BlockModuleReplacer, hardwareModuleReplacer } from './entryModuleReplacer';
+import json from '@rollup/plugin-json';
 
 import FileUtils from './utils/fileUtils';
 
@@ -16,7 +17,14 @@ async function rollupBlockFile(blockFilePath: string): Promise<void> {
     const bundle = await rollup({
         input: blockFilePath,
         inlineDynamicImports: true,
-        plugins: [rollupResolve(), rollupCommonjs(), BlockModuleReplacer()],
+        plugins: [
+            rollupResolve(),
+            rollupCommonjs({
+                include: 'node_modules/**',
+            }),
+            BlockModuleReplacer(),
+            json(),
+        ],
         external: ['lodash'],
     });
     await bundle.write({
@@ -35,7 +43,7 @@ async function rollupModuleFile(moduleFilePath: string): Promise<void> {
     }
     const bundle = await rollup({
         input: moduleFilePath,
-        plugins: [rollupResolve(), hardwareModuleReplacer()],
+        plugins: [rollupResolve(), hardwareModuleReplacer(), json()],
     });
     await bundle.write({
         format: 'commonjs',
