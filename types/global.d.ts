@@ -4,5 +4,6 @@ declare namespace NodeJS {
         openBuildDirectory: () => void;
         getHardwareJsonInfo: (filePath: string) => { [key: string]: any };
         getBlockJsInfo: (filePath: string) => { [key: string]: any };
+        compressLiteModule: (a: EntryLiteModuleCompressionInfo) => Promise<void>;
     }
 }

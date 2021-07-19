@@ -5,6 +5,13 @@ declare interface EntryModuleCompressionInfo {
     blockFilePath: string;
 }
 
+declare interface EntryLiteModuleCompressionInfo {
+    imageInfo: string;
+    blockInfo: string;
+    metadataInfo: string;
+    moduleName: string;
+}
+
 declare interface EntryModuleMetadata {
     moduleName: string;
     version: string;
@@ -39,10 +46,11 @@ declare interface HardwareConfig {
     version?: string; // legacy 에는 없을 수 있음
 }
 
-declare type HardwareFirmware = string |
-    { name: string; translate: string } |
-    { name: string; translate: string }[] |
-    { type: "copy"; name: string; afterDelay: number }[]
+declare type HardwareFirmware =
+    | string
+    | { name: string; translate: string }
+    | { name: string; translate: string }[]
+    | { type: 'copy'; name: string; afterDelay: number }[];
 
 type HardwareDriverElement = {
     'win32-ia32'?: string;
