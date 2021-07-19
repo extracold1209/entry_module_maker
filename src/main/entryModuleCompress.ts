@@ -1,29 +1,60 @@
 import rollupCommonjs from '@rollup/plugin-commonjs';
 import rollupResolve from '@rollup/plugin-node-resolve';
 import path from 'path';
-import {rollup} from 'rollup';
-import {buildFilePath, unpackedBuildPath} from './constants';
+import { rollup } from 'rollup';
+import { buildFilePath, unpackedBuildPath } from './constants';
 import compressHardwareModuleFile from './core/hardware/compressHardwareModule';
-import moduleReplacerPlugin from './entryModuleReplacer';
+import { BlockModuleReplacer, hardwareModuleReplacer } from './entryModuleReplacer';
+import json from '@rollup/plugin-json';
+
 import FileUtils from './utils/fileUtils';
 
 async function rollupBlockFile(blockFilePath: string): Promise<void> {
     const blockFileName = path.basename(blockFilePath);
-    if (!await FileUtils.isExist(blockFilePath)) {
+    if (!(await FileUtils.isExist(blockFilePath))) {
         throw new Error(`${blockFilePath} not exist`);
     }
     const bundle = await rollup({
         input: blockFilePath,
         inlineDynamicImports: true,
-        plugins: [rollupResolve(), rollupCommonjs(), moduleReplacerPlugin()],
+        plugins: [
+            rollupResolve(),
+            rollupCommonjs({
+                include: 'node_modules/**',
+            }),
+            BlockModuleReplacer(),
+            json(),
+        ],
+        external: ['lodash'],
     });
     await bundle.write({
         format: 'iife',
         file: path.join(unpackedBuildPath, blockFileName),
+        globals: {
+            lodash: '_',
+        },
     });
 }
 
-async function writeMetadata(compressionInfo: EntryModuleCompressionInfo, hardwareInfo: HardwareConfig): Promise<void> {
+async function rollupModuleFile(moduleFilePath: string): Promise<void> {
+    const moduleFileName = path.basename(moduleFilePath);
+    if (!(await FileUtils.isExist(moduleFilePath))) {
+        throw new Error(`${moduleFilePath} not exist`);
+    }
+    const bundle = await rollup({
+        input: moduleFilePath,
+        plugins: [rollupResolve(), hardwareModuleReplacer(), json()],
+    });
+    await bundle.write({
+        format: 'commonjs',
+        file: moduleFilePath,
+    });
+}
+
+async function writeMetadata(
+    compressionInfo: EntryModuleCompressionInfo,
+    hardwareInfo: HardwareConfig
+): Promise<void> {
     const { moduleName, blockFilePath, version } = compressionInfo;
     const { platform, category, id } = hardwareInfo;
     const metadata: EntryModuleMetadata = {
@@ -42,11 +73,14 @@ async function writeMetadata(compressionInfo: EntryModuleCompressionInfo, hardwa
     await FileUtils.writeJSONFile(path.join(unpackedBuildPath, 'metadata.json'), metadata);
 }
 
-async function copyImageFile(hardwareModulePath: string, hardwareInfo: HardwareConfig): Promise<void> {
+async function copyImageFile(
+    hardwareModulePath: string,
+    hardwareInfo: HardwareConfig
+): Promise<void> {
     const { icon } = hardwareInfo;
     await FileUtils.copyFile(
         path.join(hardwareModulePath, icon),
-        path.join(unpackedBuildPath, icon),
+        path.join(unpackedBuildPath, icon)
     );
 }
 
@@ -60,7 +94,7 @@ async function copyImageFile(hardwareModulePath: string, hardwareInfo: HardwareC
 async function forceModifyHardwareModule(
     hardwareJSONPath: string,
     hardwareInfo: HardwareConfig,
-    compressionInfo: EntryModuleCompressionInfo,
+    compressionInfo: EntryModuleCompressionInfo
 ): Promise<void> {
     const { moduleName, version } = compressionInfo;
 
@@ -80,7 +114,7 @@ async function compressModule(moduleName: string): Promise<void> {
 }
 
 export default async (compressionInfo: EntryModuleCompressionInfo) => {
-    const {hardwareConfigPath, moduleName, blockFilePath} = compressionInfo;
+    const { hardwareConfigPath, moduleName, blockFilePath } = compressionInfo;
 
     try {
         const hardwareModulePath = path.dirname(hardwareConfigPath);
@@ -91,6 +125,11 @@ export default async (compressionInfo: EntryModuleCompressionInfo) => {
         await copyImageFile(hardwareModulePath, hardwareInfo);
 
         await forceModifyHardwareModule(hardwareConfigPath, hardwareInfo, compressionInfo);
+        // this replaces base_module
+        await rollupModuleFile(
+            path.join(compressionInfo.hardwareConfigPath, '..', `${moduleName}.js`)
+        );
+
         await compressHardwareModuleFile(compressionInfo, hardwareInfo);
 
         await writeMetadata(compressionInfo, hardwareInfo);

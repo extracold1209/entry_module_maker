@@ -1,4 +1,4 @@
-import {ipcRenderer, shell} from 'electron';
+import { ipcRenderer, shell } from 'electron';
 import path from 'path';
 
 process.once('loaded', () => {
@@ -12,9 +12,13 @@ process.once('loaded', () => {
 
     global.getHardwareJsonInfo = async (filePath: string) => {
         return await ipcRenderer.invoke('getJsonFileInfo', filePath);
-    }
+    };
 
     global.getBlockJsInfo = async (filePath: string) => {
         return await ipcRenderer.invoke('getBlockFileInfo', filePath);
-    }
+    };
+
+    global.compressLiteModule = async (compressionInfo: EntryLiteModuleCompressionInfo) => {
+        await ipcRenderer.invoke('compressLite', compressionInfo);
+    };
 });
